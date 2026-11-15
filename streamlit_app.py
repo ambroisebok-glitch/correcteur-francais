@@ -129,21 +129,26 @@ def page_correction():
         c2.info("Les corrections ont changé : prépare le PDF à nouveau.")
 
 
-def page_atelier():
-    chemin = os.path.join(ICI, "atelier-francais.html")
+def page_atelier(fichier, libelle, nom_telechargement, cle):
+    chemin = os.path.join(ICI, fichier)
     with open(chemin, encoding="utf-8") as f:
         html = f.read()
-    st.download_button("Télécharger l'atelier (fonctionne sans connexion, à ouvrir sur le téléphone)",
-                       html, file_name="atelier-francais.html", mime="text/html")
+    st.download_button(libelle, html, file_name=nom_telechargement, mime="text/html", key=cle)
     components.html(html, height=1100, scrolling=True)
 
 
-onglet_corr, onglet_atelier = st.tabs(["Corriger un document", "Atelier de français"])
+onglet_corr, onglet_fr, onglet_de = st.tabs(["Corriger un document", "Atelier de français", "Atelier d'allemand"])
 with onglet_corr:
     page_correction()
     st.divider()
     st.caption("Correction orthographique et grammaticale par [LanguageTool](https://languagetool.org). "
                "Le texte du document est envoyé à ce service pour être corrigé. "
                "Le document n'est pas conservé par cette application.")
-with onglet_atelier:
-    page_atelier()
+with onglet_fr:
+    page_atelier("atelier-francais.html",
+                 "Télécharger l'atelier de français (fonctionne sans connexion, à ouvrir sur le téléphone)",
+                 "atelier-francais.html", "dl-fr")
+with onglet_de:
+    page_atelier("atelier-allemand.html",
+                 "Télécharger l'atelier d'allemand (fonctionne sans connexion, à ouvrir sur le téléphone)",
+                 "atelier-allemand.html", "dl-de")
