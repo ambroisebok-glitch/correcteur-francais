@@ -120,6 +120,8 @@ input.blank{width:11ch;font-weight:600}
 }
 @media (prefers-reduced-motion:reduce){.progress span{transition:none}}
 #siteLink{margin:0 0 10px;font-size:15px}#siteLink a{color:var(--accent);font-weight:600}
+.sign{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;text-align:center}
+.sign b{color:var(--ink);font-weight:600}
 </style>
 </head>
 <body>
@@ -166,6 +168,7 @@ input.blank{width:11ch;font-weight:600}
       </div>
     </section>
   </main>
+  <footer class="sign">Créé par <b>Ambroise BOKOUMBO</b></footer>
 </div>
 
 <script>
@@ -316,6 +319,7 @@ M("adjectif","Das sind meine ___ Freunde.",["neuen","neue","neuer","neues"],"neu
 M("adjectif","Sie wohnt in einem ___ Haus.",["großen","große","großer","großes"],"großen","Datif neutre après einem : -en.");
 M("adjectif","Die ___ Blumen sind schön.",["roten","rote","roter","rotes"],"roten","Au pluriel après l'article défini : -en.");
 
+var LANG="de-DE";
 var KEY="atelier-allemand-v1", stats={};
 try{stats=JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){stats={};}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(stats));}catch(e){}}
@@ -333,6 +337,13 @@ BANK.forEach(function(q,i){if(q.type==="m"&&q.choices.indexOf(q.ans[0])<0){conso
 
 function last(i){return stats[i]?stats[i].last:undefined;}
 
+function dkey(x){return x.getFullYear()+"-"+("0"+(x.getMonth()+1)).slice(-2)+"-"+("0"+x.getDate()).slice(-2);}
+function daysObj(){if(!stats._days)stats._days={};return stats._days;}
+function markToday(){var D=daysObj(),t=dkey(new Date());D[t]=(D[t]||0)+1;save();}
+function streakInfo(){var D=daysObj(),d=new Date(),n=0,td=D[dkey(d)]||0;if(!td)d.setDate(d.getDate()-1);while(D[dkey(d)]){n++;d.setDate(d.getDate()-1);}return{today:td,streak:n};}
+function streakText(){var s=streakInfo();if(!s.today)return" Fais ta série du jour."+(s.streak?" Tu es à "+s.streak+" jour"+(s.streak>1?"s":"")+" d’affilée.":"");return" Aujourd’hui : "+s.today+" série"+(s.today>1?"s":"")+" · "+s.streak+" jour"+(s.streak>1?"s":"")+" d’affilée.";}
+function speak(){if(!window.speechSynthesis)return;var q=BANK[S.list[S.i]];var u=new SpeechSynthesisUtterance(q.q.replace("___",q.ans[0]).replace(/\s*\([^)]*\)/g,"").replace(/\s*\.$/,"."));u.lang=LANG;u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u);}
+
 function renderHome(){
   var total=BANK.length,mastered=0,errs=0;
   var html=CATS.map(function(c){
@@ -348,7 +359,7 @@ function renderHome(){
       '<details><summary>Rappel de cours</summary><ul>'+c.rappel.map(function(r){return "<li>"+fr(r)+"</li>";}).join("")+'</ul></details></article>';
   }).join("");
   $("#cats").innerHTML=html;
-  $("#summary").textContent=mastered+" questions réussies sur "+total+".";
+  $("#summary").textContent=mastered+" questions réussies sur "+total+"."+streakText();
   var b=$("#errBtn");b.disabled=errs===0;b.textContent=errs?"Revoir mes erreurs ("+errs+")":"Revoir mes erreurs";
 }
 
@@ -369,6 +380,7 @@ function start(mode){
 function showQ(){
   var q=BANK[S.list[S.i]];
   S.answered=false;
+  if(window.speechSynthesis)speechSynthesis.cancel();
   $("#qcat").textContent=catName(q.cat);
   $("#qcount").textContent="Question "+(S.i+1)+" sur "+S.list.length;
   $("#qbar").style.width=(S.i/S.list.length*100)+"%";
@@ -418,7 +430,7 @@ function finish(ok,given,near){
   }
   if(q.ex)h+='<p>'+fr(q.ex)+'</p>';
   var last=S.i===S.list.length-1;
-  h+='<div class="row"><button class="btn primary" id="nextBtn">'+(last?"Voir le résultat":"Question suivante")+'</button></div></div>';
+  h+='<div class="row"><button class="btn primary" id="nextBtn">'+(last?"Voir le résultat":"Question suivante")+'</button>'+(window.speechSynthesis?'<button class="btn" id="speakBtn">Écouter la phrase</button>':'')+'</div></div>';
   $("#fb").innerHTML=h;
   setTimeout(function(){var n=$("#nextBtn");if(n)n.focus();},60);
 }
@@ -450,7 +462,7 @@ function next(){
 }
 
 function showResult(){
-  var n=S.list.length,sc=S.score;
+  var n=S.list.length,sc=S.score;markToday();
   $("#score").innerHTML=sc+' <small>/ '+n+'</small>';
   var msg=sc===n?"Sans faute.":(sc>=n*.8?"Très solide. Revois seulement les points ci-dessous.":(sc>=n*.5?"Pas mal. Relis le rappel de cours, puis refais une série.":"Continue, la répétition fait le travail. Commence par le rappel de cours."));
   $("#scoreMsg").textContent=msg;
@@ -468,6 +480,7 @@ document.addEventListener("click",function(e){
   else if(t.hasAttribute("data-start")){start(t.getAttribute("data-start"));}
   else if(t.hasAttribute("data-choice")){pick(t);}
   else if(t.id==="validBtn"){submitTyped();}
+  else if(t.id==="speakBtn"){speak();}
   else if(t.id==="nextBtn"){next();}
   else if(t.id==="quitBtn"||t.id==="homeBtn"){renderHome();show("home");}
   else if(t.id==="againBtn"){if(S)start(S.mode);}
