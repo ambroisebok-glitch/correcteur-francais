@@ -10,7 +10,7 @@ import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Correcteur de français", layout="wide")
+st.set_page_config(page_title="Correcteur et ateliers de langues", layout="wide")
 
 # Les « secrets » de Streamlit (LT_URL, LT_USERNAME, LT_APIKEY) servent de réglages pour le moteur de correction.
 try:
@@ -37,10 +37,16 @@ def contexte(texts, it):
     return (("… " if a > 0 else "") + extrait + (" …" if b < len(t) else "")).replace("\n", " ")
 
 
+LANGUES = {"Français": "fr", "Allemand (Deutsch)": "de-DE", "Anglais (English)": "en-US"}
+
+
 def page_correction():
-    st.title("Correcteur de français")
-    st.write("Dépose un document Word, PDF ou texte. Les fautes d'orthographe, de grammaire, d'accord et de "
-             "conjugaison sont repérées. Tu choisis les corrections à appliquer, puis tu télécharges le résultat.")
+    st.title("Correcteur de documents")
+    st.write("Dépose un document Word, PDF ou texte en français, en allemand ou en anglais. Les fautes "
+             "d'orthographe, de grammaire, d'accord et de conjugaison sont repérées. Tu choisis les corrections "
+             "à appliquer, puis tu télécharges le résultat.")
+    langue = st.selectbox("Langue du document", list(LANGUES))
+    code = LANGUES[langue]
     up = st.file_uploader("Document Word (.docx), PDF ou texte (.txt)", type=["docx", "pdf", "txt"])
     if up is None:
         st.caption("Les fichiers .doc (ancien format Word) ne sont pas pris en charge : enregistre-les en .docx.")
@@ -49,13 +55,13 @@ def page_correction():
     data = up.getvalue()
     ext = os.path.splitext(up.name)[1].lower()
     base = os.path.splitext(up.name)[0] or "document"
-    fid = hashlib.sha256(data).hexdigest()
+    fid = hashlib.sha256(data + code.encode()).hexdigest()
 
     if st.session_state.get("fid") != fid:
         barre = st.progress(0.0, text="Analyse du document…")
         try:
             texts, issues = core.analyze_bytes(
-                data, ext, lambda p: barre.progress(min(1.0, max(0.0, p)), text="Analyse du document…"))
+                data, ext, lambda p: barre.progress(min(1.0, max(0.0, p)), text="Analyse du document…"), code)
         except Exception as e:
             barre.empty()
             st.error(str(e) or "Erreur inattendue pendant l'analyse.")
@@ -137,7 +143,8 @@ def page_atelier(fichier, libelle, nom_telechargement, cle):
     components.html(html, height=1100, scrolling=True)
 
 
-onglet_corr, onglet_fr, onglet_de = st.tabs(["Corriger un document", "Atelier de français", "Atelier d'allemand"])
+onglet_corr, onglet_fr, onglet_de, onglet_en = st.tabs(
+    ["Corriger un document", "Atelier de français", "Atelier d'allemand", "Atelier d'anglais"])
 with onglet_corr:
     page_correction()
     st.divider()
@@ -152,3 +159,10 @@ with onglet_de:
     page_atelier("atelier-allemand.html",
                  "Télécharger l'atelier d'allemand (fonctionne sans connexion, à ouvrir sur le téléphone)",
                  "atelier-allemand.html", "dl-de")
+with onglet_en:
+    page_atelier("atelier-anglais.html",
+                 "Télécharger l'atelier d'anglais (fonctionne sans connexion, à ouvrir sur le téléphone)",
+                 "atelier-anglais.html", "dl-en")
+
+st.divider()
+st.caption("Créé par **Ambroise BOKOUMBO**")
