@@ -112,24 +112,24 @@ _LT_LOCK = threading.Lock()
 _LT_LAST = [0.0, 0]    # moment et taille du dernier envoi
 
 
-def lt_check(text):
+def lt_check(text, lang="fr"):
     """Un seul envoi à la fois vers le service public, en respectant ses limites de débit
     (20 requêtes et 75 000 caractères par minute), même quand plusieurs visiteurs corrigent en même temps."""
     if not PUBLIC_LT:
-        return _lt_post(text)
+        return _lt_post(text, lang)
     with _LT_LOCK:
         gap = max(3.2, _LT_LAST[1] / 75000 * 60)
         wait = gap - (time.time() - _LT_LAST[0])
         if wait > 0:
             time.sleep(wait)
         try:
-            return _lt_post(text)
+            return _lt_post(text, lang)
         finally:
             _LT_LAST[0], _LT_LAST[1] = time.time(), len(text)
 
 
-def _lt_post(text):
-    params = {"text": text, "language": "fr"}
+def _lt_post(text, lang="fr"):
+    params = {"text": text, "language": lang}
     if LT_USERNAME and LT_APIKEY:
         params.update(username=LT_USERNAME, apiKey=LT_APIKEY)
     data = urllib.parse.urlencode(params).encode()
@@ -151,7 +151,7 @@ def _lt_post(text):
                                "ou l'adresse LT_URL.")
 
 
-def check_texts(texts, progress):
+def check_texts(texts, progress, lang="fr"):
     chunks, cur, size = [], [], 0
     for i, t in enumerate(texts):
         if not t.strip():
@@ -170,7 +170,7 @@ def check_texts(texts, progress):
         for i in idxs:
             starts.append(len(text))
             text += texts[i] + "\n\n"
-        for m in lt_check(text):
+        for m in lt_check(text, lang):
             o, l = m["offset"], m["length"]
             k = bisect.bisect_right(starts, o) - 1
             if k < 0:
@@ -282,7 +282,7 @@ def soffice_to_pdf(docx_path, outdir):
 
 # --------------------------------------------------------------------------- fonctions pour l'interface
 
-def analyze_bytes(data, ext, progress=lambda p: None):
+def analyze_bytes(data, ext, progress=lambda p: None, lang="fr"):
     """Renvoie (textes_des_paragraphes, signalements)."""
     with tempfile.TemporaryDirectory() as d:
         path = os.path.join(d, "source" + ext)
@@ -291,7 +291,7 @@ def analyze_bytes(data, ext, progress=lambda p: None):
         _, _, texts = load_paragraphs(path, ext)
     if not "".join(texts).strip():
         raise ValueError("Le document ne contient aucun texte.")
-    return texts, check_texts(texts, progress)
+    return texts, check_texts(texts, progress, lang)
 
 
 def _apply(texts, issues, decisions):
