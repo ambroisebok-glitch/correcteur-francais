@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Atelier d’allemand</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{
+  /* Concept : cahier d'école. Interface sobre bleu encre ; la carte de question reprend la réglure Seyès. */
+  --bg:#F2F5F9; --surface:#FFFFFF; --ink:#15213B; --muted:#58668A; --line:#D7DFEC;
+  --accent:#2B59C3; --on-accent:#FFFFFF; --accent-soft:#E7EDFB;
+  --good:#1B7448; --good-bg:#E3F4EA; --bad:#B0302A; --bad-bg:#FBE9E7;
+  --rule:#DCE6F5; --margin:#EFA3A3;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1528; --surface:#161F38; --ink:#E7ECF8; --muted:#97A5C6; --line:#2A3556;
+    --accent:#86A8FF; --on-accent:#0E1528; --accent-soft:#1E2B52;
+    --good:#6FD39C; --good-bg:#12332A; --bad:#FF9188; --bad-bg:#3A1B1D;
+    --rule:#223055; --margin:#7A3A44; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1528; --surface:#161F38; --ink:#E7ECF8; --muted:#97A5C6; --line:#2A3556;
+  --accent:#86A8FF; --on-accent:#0E1528; --accent-soft:#1E2B52;
+  --good:#6FD39C; --good-bg:#12332A; --bad:#FF9188; --bad-bg:#3A1B1D;
+  --rule:#223055; --margin:#7A3A44; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.5 var(--font-body);
+  padding-block:28px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));}
+.wrap{max-width:860px;margin:0 auto}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(30px,6vw,44px);font-weight:700;letter-spacing:-.01em}
+.tagline{color:var(--muted);margin:10px 0 0;max-width:60ch}
+header{margin-bottom:24px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 16px;font-weight:600}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover:not(:disabled){filter:brightness(1.06)}
+.btn.ghost{background:transparent}
+
+/* Accueil */
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:8px}
+.summary{color:var(--muted);margin:0 0 20px}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.cat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.cat h3{font-size:21px}
+.cat .desc{margin:0;color:var(--muted);font-size:15.5px}
+.meter{height:8px;border-radius:99px;background:var(--accent-soft);overflow:hidden}
+.meter span{display:block;height:100%;background:var(--accent);border-radius:99px}
+.meta{margin:0;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cat .actions{margin-top:auto}
+details{font-size:15.5px}
+summary{cursor:pointer;color:var(--accent);font-weight:600;padding:2px 0}
+details ul{margin:8px 0 0;padding-left:20px;display:grid;gap:6px}
+.reset{margin-top:28px;text-align:right}
+.reset .btn{font-size:14px;padding:8px 12px;color:var(--muted)}
+
+/* Séance */
+.qhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.pill{background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;border-radius:99px;padding:4px 12px}
+.count{color:var(--muted);font-variant-numeric:tabular-nums;font-size:15px}
+.progress{height:6px;background:var(--accent-soft);border-radius:99px;overflow:hidden;margin-bottom:16px}
+.progress span{display:block;height:100%;background:var(--accent);transition:width .25s}
+.card{--lh:36px;background-color:var(--surface);
+  background-image:
+    linear-gradient(to right,transparent 34px,var(--margin) 34px,var(--margin) 36px,transparent 36px),
+    repeating-linear-gradient(to bottom,transparent 0,transparent 35px,var(--rule) 35px,var(--rule) 36px);
+  background-position:0 14px,0 14px;
+  border:1px solid var(--line);border-radius:14px;
+  padding:14px 18px 22px 54px}
+.sentence{font-size:23px;line-height:var(--lh);margin:0;min-height:calc(var(--lh)*2)}
+.blank{font:inherit;display:inline-block;min-width:8ch;text-align:center;border:0;border-bottom:2px solid var(--accent);
+  background:transparent;color:var(--ink);padding:0 6px;height:30px;vertical-align:baseline;border-radius:0}
+input.blank{width:11ch;font-weight:600}
+.blank.ok{color:var(--good);border-color:var(--good);font-weight:700}
+.blank.ko{color:var(--bad);border-color:var(--bad);font-weight:700}
+.slot{color:var(--accent);font-weight:700}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:20px}
+.choice{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;font-size:19px;font-weight:600;text-align:center}
+.choice:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+.choice.good{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+.choice.bad{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.choice:disabled{cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+.fb{margin-top:16px;border-radius:14px;padding:16px 18px;border:1.5px solid}
+.fb.ok{background:var(--good-bg);border-color:var(--good)}
+.fb.ko{background:var(--bad-bg);border-color:var(--bad)}
+.fb h3{font-size:19px;margin-bottom:6px}
+.fb.ok h3{color:var(--good)}
+.fb.ko h3{color:var(--bad)}
+.fb p{margin:4px 0}
+.quit{margin-top:20px}
+.chars{display:flex;gap:8px;margin-top:14px}
+.chars .btn{padding:6px 14px;font-size:19px;min-width:44px}
+
+/* Résultat */
+.score{font-family:var(--font-display);font-size:clamp(56px,14vw,96px);font-weight:700;line-height:1;margin:6px 0;font-variant-numeric:tabular-nums}
+.score small{font-size:.4em;color:var(--muted);font-weight:600}
+.errs{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:10px}
+.errs li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.errs .given{color:var(--bad);font-size:15px;margin:2px 0 0}
+.errs b{color:var(--good)}
+
+@media (max-width:520px){
+  .card{padding:12px 14px 20px 46px;background-image:
+    linear-gradient(to right,transparent 28px,var(--margin) 28px,var(--margin) 30px,transparent 30px),
+    repeating-linear-gradient(to bottom,transparent 0,transparent 35px,var(--rule) 35px,var(--rule) 36px)}
+  .sentence{font-size:21px}
+}
+@media (prefers-reduced-motion:reduce){.progress span{transition:none}}
+#siteLink{margin:0 0 10px;font-size:15px}#siteLink a{color:var(--accent);font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p id="siteLink" hidden><a href="/">&larr; Correcteur de documents</a></p>
+    <h1>Atelier d’allemand</h1>
+    <p class="tagline">Des séries de dix questions sur la conjugaison, les articles, les cas et l’ordre des mots. Chaque réponse est corrigée et expliquée. Les phrases ratées reviennent en priorité.</p>
+  </header>
+
+  <main>
+    <section id="home">
+      <div class="toolbar">
+        <button class="btn primary" data-start="mix">Série mélangée</button>
+        <button class="btn" id="errBtn" data-start="errors">Revoir mes erreurs</button>
+      </div>
+      <p class="summary" id="summary"></p>
+      <div class="cats" id="cats"></div>
+      <div class="reset"><button class="btn ghost" id="resetBtn">Effacer ma progression</button></div>
+    </section>
+
+    <section id="quiz" hidden>
+      <div class="qhead"><span class="pill" id="qcat"></span><span class="count" id="qcount"></span></div>
+      <div class="progress" aria-hidden="true"><span id="qbar"></span></div>
+      <div class="card">
+        <p class="sentence" id="sentence"></p>
+        <div class="choices" id="choices" hidden></div>
+        <div class="chars" id="chars" hidden><button class="btn" data-ins="ä">ä</button><button class="btn" data-ins="ö">ö</button><button class="btn" data-ins="ü">ü</button><button class="btn" data-ins="ß">ß</button></div>
+        <div class="row" id="validRow"><button class="btn primary" id="validBtn">Valider</button></div>
+      </div>
+      <div id="fb" aria-live="polite"></div>
+      <div class="quit"><button class="btn ghost" id="quitBtn">Quitter la série</button></div>
+    </section>
+
+    <section id="result" hidden>
+      <h2>Résultat</h2>
+      <p class="score" id="score"></p>
+      <p id="scoreMsg"></p>
+      <ul class="errs" id="errs"></ul>
+      <div class="row">
+        <button class="btn primary" id="againBtn">Nouvelle série</button>
+        <button class="btn" id="homeBtn">Retour aux exercices</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var CATS=[
+ {id:"present",nom:"Présent",desc:"Terminaisons, verbes à changement de voyelle, verbes à particule séparable.",
+  rappel:["Terminaisons : -e, -st, -t, -en, -t, -en (ich wohne, du wohnst, er wohnt, wir wohnen, ihr wohnt, sie wohnen).","Radical en -d, -t : on ajoute un e (du arbeitest, er arbeitet).","Changement de voyelle aux 2e et 3e personnes du singulier : fahren → du fährst ; sprechen → du sprichst ; lesen → du liest ; nehmen → du nimmst.","Particule séparable : elle va à la fin de la phrase (ich stehe um 7 Uhr auf)."]},
+ {id:"modaux",nom:"Verbes modaux",desc:"können, müssen, wollen, dürfen, sollen, mögen.",
+  rappel:["Au singulier, ich et er/sie/es ont la même forme, sans terminaison : ich kann, er kann.","können : kann, kannst, kann, können, könnt, können.","müssen : muss, musst · wollen : will, willst · dürfen : darf, darfst · sollen : soll, sollst · mögen : mag, magst.","L'infinitif part à la fin de la phrase : Ich muss heute arbeiten."]},
+ {id:"perfekt",nom:"Parfait (Perfekt)",desc:"Auxiliaire haben ou sein et participe passé.",
+  rappel:["Perfekt = haben ou sein au présent + participe passé en fin de phrase.","sein pour les verbes de mouvement et de changement d'état : gehen, fahren, kommen, aufstehen, werden, sein.","Verbes faibles : ge- + radical + -t (gemacht). Verbes forts : ge- + radical + -en, avec souvent un changement de voyelle (gegangen, gesehen).","Pas de ge- pour les verbes en be-, ver-, er-, ent- (verstanden, bekommen). Pour les verbes séparables, ge- se place entre la particule et le radical (aufgemacht)."]},
+ {id:"genre",nom:"Genre des noms",desc:"der, die ou das : les indices pour deviner.",
+  rappel:["Féminin (die) : -ung, -heit, -keit, -schaft, -ion, -ei.","Neutre (das) : -chen, -lein, la plupart des noms en Ge- (das Gebäude), les infinitifs substantivés.","Masculin (der) : les jours, les mois, les saisons, les points cardinaux ; souvent -er pour les métiers (der Lehrer).","En cas de doute, apprends toujours le nom avec son article."]},
+ {id:"cas",nom:"Accusatif et datif",desc:"Complément d'objet direct, complément d'attribution.",
+  rappel:["Accusatif (COD) : den (masc.), die, das, die. Seul le masculin change par rapport au nominatif.","Datif (à qui ?) : dem (masc.), der (fém.), dem (neutre), den + -n (pluriel).","Verbes toujours suivis du datif : helfen, danken, gehören, gefallen, antworten.","geben, schenken, zeigen : datif (personne) + accusatif (chose)."]},
+ {id:"prep",nom:"Prépositions et cas",desc:"mit, für, in, auf… et le cas qu'elles imposent.",
+  rappel:["Toujours le datif : aus, bei, mit, nach, seit, von, zu.","Toujours l'accusatif : durch, für, gegen, ohne, um.","Prépositions mixtes (in, an, auf, über, unter, vor, hinter, neben, zwischen) : accusatif si direction (wohin ?), datif si lieu (wo ?).","Contractions fréquentes : im (in dem), zum, zur, beim, ins (in das)."]},
+ {id:"ordre",nom:"Ordre des mots",desc:"Verbe en deuxième position, subordonnées, questions.",
+  rappel:["Phrase principale : le verbe conjugué est toujours en 2e position (Heute gehe ich ins Kino).","Question fermée : le verbe est en 1re position (Hast du Hunger ?).","Subordonnée (weil, dass, wenn, ob) : le verbe conjugué part à la fin (…, weil ich müde bin).","Si la subordonnée ouvre la phrase, la principale commence par le verbe (Weil es regnet, bleiben wir zu Hause)."]},
+ {id:"pluriel",nom:"Pluriel des noms",desc:"Les terminaisons -e, -er, -n, -s et les trémas.",
+  rappel:["Le pluriel est irrégulier : apprends-le avec le nom.","Beaucoup de masculins : -e avec ou sans tréma (der Tag → die Tage ; der Apfel → die Äpfel).","Neutres monosyllabiques : souvent -er avec tréma (das Haus → die Häuser ; das Buch → die Bücher).","Féminins : souvent -n ou -en (die Frau → die Frauen) ; mots étrangers : -s (das Auto → die Autos)."]},
+ {id:"adjectif",nom:"Déclinaison de l'adjectif",desc:"La terminaison dépend de l'article, du genre et du cas.",
+  rappel:["Après l'article défini : terminaison -e au nominatif singulier et à l'accusatif fém. et neutre ; -en presque partout ailleurs.","Après ein : masc. nominatif -er (ein guter Mann), neutre nominatif/accusatif -es (ein neues Auto).","Sans article : l'adjectif porte la terminaison de l'article (schönes Wetter).","Au datif et au pluriel après un déterminant : -en."]}
+];
+
+var BANK=[];
+function T(cat,q,ans,ex){BANK.push({cat:cat,type:"t",q:q,ans:[].concat(ans),ex:ex||""});}
+function M(cat,q,choices,ans,ex){BANK.push({cat:cat,type:"m",q:q,choices:choices,ans:[ans],ex:ex||""});}
+
+/* Présent */
+T("present","Ich ___ (wohnen) in Lomé.","wohne","Verbe régulier : ich wohne, du wohnst, er wohnt.");
+T("present","Du ___ (fahren) nach Berlin.","fährst","Fahren change de voyelle (a → ä) à la 2e et à la 3e personne du singulier : du fährst, er fährt.");
+T("present","Er ___ (sprechen) sehr gut Deutsch.","spricht","Sprechen : e → i. Ich spreche, du sprichst, er spricht.");
+T("present","Sie ___ (lesen) ein Buch.","liest","Lesen : e → ie. Du liest, er/sie liest.");
+T("present","Wir ___ (sein) müde.","sind","Sein : ich bin, du bist, er ist, wir sind, ihr seid, sie sind.");
+T("present","Ihr ___ (haben) Zeit.","habt","Haben : ich habe, du hast, er hat, wir haben, ihr habt, sie haben.");
+T("present","Du ___ (arbeiten) viel.","arbeitest","Radical en -t : on intercale un e pour pouvoir prononcer la terminaison : du arbeitest, er arbeitet.");
+T("present","Er ___ (schlafen) noch.","schläft","Schlafen : a → ä à la 2e et à la 3e personne du singulier.");
+T("present","Er ___ (essen) gern Fisch.","isst","Essen : e → i. Le radical finit en s, donc la terminaison -st se réduit : du isst, er isst.");
+T("present","Du ___ (nehmen) den Bus.","nimmst","Nehmen : e → i et le h disparaît, le m double : du nimmst, er nimmt.");
+T("present","Ihr ___ (kommen) aus Togo.","kommt","Ihr : radical + -t. Ihr kommt.");
+T("present","Ich ___ jeden Tag um 7 Uhr auf. (aufstehen)","stehe","Verbe à particule séparable : on conjugue le radical (ich stehe) et la particule auf va à la fin.");
+
+/* Modaux */
+T("modaux","Ich ___ (müssen) heute arbeiten.","muss","Müssen : ich muss, du musst, er muss. Pas de terminaison à la 1re et à la 3e personne du singulier.");
+T("modaux","Er ___ (können) schwimmen.","kann","Können : ich kann, du kannst, er kann. Pas de tréma au singulier.");
+T("modaux","Wir ___ (wollen) ins Kino gehen.","wollen","Au pluriel, le modal prend la terminaison normale : wir wollen.");
+T("modaux","Du ___ (dürfen) hier nicht parken.","darfst","Dürfen : ich darf, du darfst, er darf.");
+T("modaux","Ihr ___ (sollen) leise sein.","sollt","Sollen : ich soll, du sollst, ihr sollt.");
+T("modaux","Ich ___ (mögen) Schokolade.","mag","Mögen : ich mag, du magst, er mag.");
+T("modaux","Er ___ (wollen) nach Hause.","will","Wollen : ich will, du willst, er will.");
+T("modaux","Sie (elles) ___ (können) sehr gut kochen.","können","Können : sie können (ils/elles). Avec Sie en majuscule, c'est le vouvoiement, même forme.");
+T("modaux","Ich ___ (möchten) einen Kaffee, bitte.","möchte","Möchten sert à demander poliment : ich möchte, du möchtest, er möchte.");
+T("modaux","Du ___ (müssen) mehr schlafen.","musst","Müssen : du musst.");
+T("modaux","Ich ___ (wissen) die Antwort nicht.",["weiß","weiss"],"Wissen n'est pas un modal mais se conjugue pareil au singulier : ich weiß, du weißt, er weiß.");
+
+/* Perfekt */
+M("perfekt","Ich ___ gestern nach Paris gefahren.",["bin","habe"],"bin","Fahren exprime un mouvement : auxiliaire sein.");
+M("perfekt","Wir ___ einen Film gesehen.",["haben","sind"],"haben","Sehen se construit avec haben.");
+M("perfekt","Er ___ schon aufgestanden.",["ist","hat"],"ist","Aufstehen exprime un changement de position : auxiliaire sein.");
+M("perfekt","Sie ___ ein Buch gelesen.",["hat","ist"],"hat","Lesen se construit avec haben.");
+T("perfekt","Sie hat Deutsch ___. (lernen)","gelernt","Verbe faible : ge- + radical + -t.");
+T("perfekt","Er ist nach Hause ___. (kommen)","gekommen","Verbe fort : ge- + radical + -en. Kommen → gekommen.");
+T("perfekt","Wir haben Pizza ___. (essen)","gegessen","Essen → gegessen (verbe fort).");
+T("perfekt","Ich habe das nicht ___. (verstehen)","verstanden","Les verbes en ver- n'ajoutent pas ge- : verstanden.");
+T("perfekt","Du hast gut ___. (schlafen)","geschlafen","Schlafen → geschlafen.");
+T("perfekt","Sie haben das Fenster ___. (aufmachen)","aufgemacht","Verbe séparable : ge- s'intercale entre la particule et le radical : auf-ge-macht.");
+T("perfekt","Er hat mich ___. (anrufen)","angerufen","Anrufen → angerufen (an-ge-rufen).");
+T("perfekt","Ich habe ein Eis ___. (kaufen)","gekauft","Kaufen → gekauft (verbe faible).");
+
+/* Genre */
+M("genre","___ Wohnung ist sehr schön.",["Die","Der","Das"],"Die","Les noms en -ung sont féminins : die Wohnung.");
+M("genre","___ Mädchen spielt im Garten.",["Das","Die","Der"],"Das","Les noms en -chen sont neutres, même pour une fille : das Mädchen.");
+M("genre","___ Freiheit ist wichtig.",["Die","Der","Das"],"Die","Les noms en -heit et -keit sont féminins.");
+M("genre","___ Lehrer ist nett.",["Der","Die","Das"],"Der","Les noms de métier en -er sont généralement masculins : der Lehrer (féminin : die Lehrerin).");
+M("genre","___ Montag ist mein Lieblingstag.",["Der","Die","Das"],"Der","Les jours de la semaine sont masculins.");
+M("genre","___ Frühling beginnt im März.",["Der","Die","Das"],"Der","Les saisons et les mois sont masculins : der Frühling, der März.");
+M("genre","___ Kind schläft.",["Das","Der","Die"],"Das","Das Kind : neutre, à apprendre avec le nom.");
+M("genre","___ Straße ist lang.",["Die","Der","Das"],"Die","Die Straße : féminin.");
+M("genre","___ Brot ist frisch.",["Das","Der","Die"],"Das","Das Brot : neutre.");
+M("genre","___ Milch ist im Kühlschrank.",["Die","Der","Das"],"Die","Die Milch : féminin.");
+M("genre","___ Zeitung liegt auf dem Tisch.",["Die","Der","Das"],"Die","Les noms en -ung sont féminins : die Zeitung.");
+
+/* Cas */
+M("cas","Ich sehe ___ Mann.",["den","der","dem","des"],"den","Voir est suivi de l'accusatif. Masculin : der Mann → den Mann.");
+M("cas","Ich gebe ___ Frau das Buch.",["der","die","den","dem"],"der","Datif féminin : die Frau → der Frau (à qui ? à la femme).");
+M("cas","Er hilft ___ Kind.",["dem","das","den","des"],"dem","Helfen est toujours suivi du datif. Neutre : dem Kind.");
+M("cas","Sie kauft ___ Hund.",["einen","ein","einem","einer"],"einen","Kaufen : accusatif. Masculin : ein Hund → einen Hund.");
+M("cas","Wir danken ___ Lehrerin.",["der","die","den","dem"],"der","Danken est suivi du datif. Féminin : der Lehrerin.");
+M("cas","Ich kenne ___ Mädchen nicht.",["das","dem","den","die"],"das","À l'accusatif, le neutre ne change pas : das Mädchen.");
+M("cas","Er schenkt ___ Kindern ein Spiel.",["den","die","dem","der"],"den","Datif pluriel : den + nom en -n (den Kindern).");
+M("cas","Ich habe ___ Bruder.",["einen","ein","einem","einer"],"einen","Haben est suivi de l'accusatif : ich habe einen Bruder.");
+M("cas","Sie antwortet ___ Chef.",["dem","den","der","das"],"dem","Antworten est suivi du datif : dem Chef.");
+M("cas","Ich sehe ___ Katze.",["die","der","dem","den"],"die","Accusatif féminin = nominatif : die Katze.");
+M("cas","Er braucht ___ Hilfe.",["eine","einen","einer","einem"],"eine","Accusatif féminin : eine Hilfe.");
+
+/* Prépositions */
+M("prep","Ich fahre mit ___ Bus.",["dem","den","der","das"],"dem","Mit est toujours suivi du datif : mit dem Bus.");
+M("prep","Das Geschenk ist für ___ Mutter.",["die","der","dem","den"],"die","Für est toujours suivi de l'accusatif : für die Mutter.");
+M("prep","Wir gehen in ___ Kino.",["das","dem","den","der"],"das","Direction (wohin ?) : accusatif. In das Kino → ins Kino.");
+M("prep","Das Buch liegt auf ___ Tisch.",["dem","den","der","das"],"dem","Lieu sans mouvement (wo ?) : datif. Auf dem Tisch.");
+M("prep","Er kommt aus ___ Schule.",["der","die","dem","den"],"der","Aus est toujours suivi du datif. Féminin : aus der Schule.");
+M("prep","Nach ___ Essen gehen wir spazieren.",["dem","das","den","der"],"dem","Nach est toujours suivi du datif : nach dem Essen.");
+M("prep","Sie geht ohne ___ Mantel nach draußen.",["einen","einem","ein","einer"],"einen","Ohne est toujours suivi de l'accusatif : ohne einen Mantel.");
+M("prep","Ich wohne bei ___ Eltern.",["meinen","meine","meinem","meiner"],"meinen","Bei + datif. Datif pluriel : meinen Eltern.");
+M("prep","Er stellt die Vase auf ___ Tisch.",["den","dem","der","das"],"den","Stellen exprime un mouvement (wohin ?) : accusatif. Auf den Tisch.");
+M("prep","Wir lernen seit ___ Jahr Deutsch.",["einem","ein","einen","einer"],"einem","Seit est toujours suivi du datif. Neutre : seit einem Jahr.");
+M("prep","Sie läuft durch ___ Park.",["den","dem","der","das"],"den","Durch est toujours suivi de l'accusatif : durch den Park.");
+
+/* Ordre des mots */
+M("ordre","Heute ___ ins Kino.",["gehe ich","ich gehe"],"gehe ich","Le verbe conjugué reste en 2e position : si Heute ouvre la phrase, le sujet passe après le verbe.");
+M("ordre","Ich weiß, dass er morgen ___.",["kommt","kommen er","er kommt"],"kommt","Dans la subordonnée en dass, le verbe conjugué va à la fin : …, dass er morgen kommt.");
+M("ordre","Weil es regnet, ___ zu Hause.",["bleiben wir","wir bleiben"],"bleiben wir","Quand la subordonnée ouvre la phrase, la principale commence par le verbe.");
+M("ordre","Ich muss morgen früh ___.",["aufstehen","stehen auf"],"aufstehen","Avec un modal, l'infinitif part à la fin de la phrase, particule comprise.");
+M("ordre","Wann ___ nach Hause?",["kommst du","du kommst"],"kommst du","Question avec mot interrogatif : le verbe est en 2e position.");
+M("ordre","___ du Hunger?",["Hast","Du hast","Habe","Haben"],"Hast","Question fermée (oui/non) : le verbe conjugué est en 1re position.");
+M("ordre","Ich bleibe zu Hause, weil ich ___.",["krank bin","bin krank"],"krank bin","Après weil, le verbe conjugué part à la fin de la subordonnée.");
+M("ordre","Gestern ___ einen Film gesehen.",["haben wir","wir haben"],"haben wir","Avec le Perfekt, l'auxiliaire est en 2e position et le participe à la fin.");
+M("ordre","Er sagt, dass er keine Zeit ___.",["hat","hat er"],"hat","Subordonnée en dass : le verbe conjugué est rejeté à la fin.");
+M("ordre","Am Wochenende ___ wir Freunde.",["besuchen","wir besuchen"],"besuchen","Ici, le sujet wir est déjà dans la phrase : seul le verbe, en 2e position, manque.");
+
+/* Pluriel */
+M("pluriel","Die ___ sind sehr groß. (das Haus)",["Häuser","Hause","Hauser","Häuse"],"Häuser","Das Haus → die Häuser (-er avec tréma).");
+M("pluriel","Sie hat drei ___. (das Kind)",["Kinder","Kinde","Kinden","Kinds"],"Kinder","Das Kind → die Kinder (-er).");
+M("pluriel","Ich habe viele ___. (das Buch)",["Bücher","Buche","Bücherer","Bucher"],"Bücher","Das Buch → die Bücher (-er avec tréma).");
+M("pluriel","Zwei ___ warten draußen. (der Mann)",["Männer","Manne","Männen","Mans"],"Männer","Der Mann → die Männer.");
+M("pluriel","Wir haben zwei ___. (das Auto)",["Autos","Auter","Autoen","Autoss"],"Autos","Les mots d'origine étrangère prennent souvent -s : die Autos.");
+M("pluriel","Die ___ sind nett. (die Frau)",["Frauen","Fraue","Fräuer","Fraus"],"Frauen","Les féminins prennent surtout -n ou -en : die Frauen.");
+M("pluriel","Es gibt sieben ___ in der Woche. (der Tag)",["Tage","Täge","Tagen","Tager"],"Tage","Der Tag → die Tage (-e, sans tréma).");
+M("pluriel","Ich esse zwei ___. (der Apfel)",["Äpfel","Apfel","Äpfeln","Apfeler"],"Äpfel","Der Apfel → die Äpfel (tréma, sans terminaison).");
+M("pluriel","Die ___ sind im Büro. (der Lehrer)",["Lehrer","Lehrers","Lehrern","Lehrere"],"Lehrer","Les masculins en -er sont invariables au pluriel : die Lehrer.");
+M("pluriel","Sie hat zwei ___. (die Tochter)",["Töchter","Tochter","Töchtern","Tochters"],"Töchter","Die Tochter → die Töchter (tréma).");
+M("pluriel","Wie viele ___ hat Berlin? (der Einwohner)",["Einwohner","Einwohners","Einwohnern","Einwohnen"],"Einwohner","Invariable comme les autres noms en -er.");
+M("pluriel","Die ___ sind teuer. (die Stadt)",["Städte","Stadte","Städten","Städer"],"Städte","Die Stadt → die Städte (-e avec tréma).");
+
+/* Adjectif */
+M("adjectif","Das ist ein ___ Mann.",["guter","gute","gutes","guten"],"guter","Après ein, masculin nominatif : terminaison -er.");
+M("adjectif","Ich habe ein ___ Auto.",["neues","neue","neuen","neuer"],"neues","Après ein, neutre nominatif/accusatif : -es.");
+M("adjectif","Der ___ Hund schläft.",["kleine","kleiner","kleinen","kleines"],"kleine","Après l'article défini, nominatif masculin : -e.");
+M("adjectif","Ich sehe den ___ Hund.",["kleinen","kleine","kleiner","kleines"],"kleinen","Après den (accusatif masculin) : -en.");
+M("adjectif","Die ___ Frau lacht.",["alte","alten","alter","altes"],"alte","Après l'article défini, nominatif féminin : -e.");
+M("adjectif","Ich kaufe eine ___ Jacke.",["warme","warmen","warmer","warmes"],"warme","Après eine, féminin accusatif : -e.");
+M("adjectif","Er hilft dem ___ Kind.",["kleinen","kleine","kleines","kleiner"],"kleinen","Au datif, l'adjectif prend -en.");
+M("adjectif","Heute ist ___ Wetter.",["schönes","schöne","schönen","schöner"],"schönes","Sans article, l'adjectif prend la terminaison de l'article neutre : (das) → schönes.");
+M("adjectif","Das sind meine ___ Freunde.",["neuen","neue","neuer","neues"],"neuen","Au pluriel après un possessif : -en.");
+M("adjectif","Sie wohnt in einem ___ Haus.",["großen","große","großer","großes"],"großen","Datif neutre après einem : -en.");
+M("adjectif","Die ___ Blumen sind schön.",["roten","rote","roter","rotes"],"roten","Au pluriel après l'article défini : -en.");
+
+var KEY="atelier-allemand-v1", stats={};
+try{stats=JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){stats={};}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(stats));}catch(e){}}
+
+function $(s){return document.querySelector(s);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function fr(s){return esc(String(s).replace(/'/g,"’"));}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function norm(s){return String(s).toLowerCase().replace(/[’‘`]/g,"'").replace(/\s+/g," ").trim();}
+function strip(s){return s.normalize("NFD").replace(/[̀-ͯ]/g,"");}
+function catName(id){for(var i=0;i<CATS.length;i++){if(CATS[i].id===id)return CATS[i].nom;}return "";}
+function show(id){["home","quiz","result"].forEach(function(v){$("#"+v).hidden=(v!==id);});window.scrollTo(0,0);}
+
+BANK.forEach(function(q,i){if(q.type==="m"&&q.choices.indexOf(q.ans[0])<0){console.warn("Réponse absente des choix, question",i);}});
+
+function last(i){return stats[i]?stats[i].last:undefined;}
+
+function renderHome(){
+  var total=BANK.length,mastered=0,errs=0;
+  var html=CATS.map(function(c){
+    var idx=[];BANK.forEach(function(q,i){if(q.cat===c.id)idx.push(i);});
+    var ok=idx.filter(function(i){return last(i)===true;}).length;
+    mastered+=ok;
+    errs+=idx.filter(function(i){return last(i)===false;}).length;
+    var pct=Math.round(ok/idx.length*100);
+    return '<article class="cat"><h3>'+esc(c.nom)+'</h3><p class="desc">'+fr(c.desc)+'</p>'+
+      '<div class="meter" role="img" aria-label="'+ok+' sur '+idx.length+' réussies"><span style="width:'+pct+'%"></span></div>'+
+      '<p class="meta">'+ok+' / '+idx.length+' réussies</p>'+
+      '<div class="actions"><button class="btn primary" data-start="'+c.id+'">S’entraîner</button></div>'+
+      '<details><summary>Rappel de cours</summary><ul>'+c.rappel.map(function(r){return "<li>"+fr(r)+"</li>";}).join("")+'</ul></details></article>';
+  }).join("");
+  $("#cats").innerHTML=html;
+  $("#summary").textContent=mastered+" questions réussies sur "+total+".";
+  var b=$("#errBtn");b.disabled=errs===0;b.textContent=errs?"Revoir mes erreurs ("+errs+")":"Revoir mes erreurs";
+}
+
+var S=null;
+
+function start(mode){
+  var pool=[];
+  BANK.forEach(function(q,i){
+    if(mode==="mix"||q.cat===mode||(mode==="errors"&&last(i)===false))pool.push(i);
+  });
+  if(!pool.length)return;
+  var pr=function(i){var l=last(i);return l===false?0:(l===undefined?1:2);};
+  pool=shuffle(pool).sort(function(a,b){return pr(a)-pr(b);}).slice(0,10);
+  S={mode:mode,list:shuffle(pool),i:0,score:0,wrong:[],answered:false};
+  show("quiz");showQ();
+}
+
+function showQ(){
+  var q=BANK[S.list[S.i]];
+  S.answered=false;
+  $("#qcat").textContent=catName(q.cat);
+  $("#qcount").textContent="Question "+(S.i+1)+" sur "+S.list.length;
+  $("#qbar").style.width=(S.i/S.list.length*100)+"%";
+  $("#fb").innerHTML="";
+  var parts=q.q.split("___");
+  var blank=q.type==="t"
+    ? '<input id="ans" class="blank" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Ta réponse">'
+    : '<span id="slot" class="blank slot">&nbsp;</span>';
+  $("#sentence").innerHTML=fr(parts[0])+blank+fr(parts[1]||"");
+  var ch=$("#choices"),vr=$("#validRow");
+  if(q.type==="m"){
+    ch.hidden=false;vr.hidden=true;$("#chars").hidden=true;
+    ch.innerHTML=shuffle(q.choices).map(function(c){return '<button class="choice" data-choice="'+esc(c)+'">'+fr(c)+'</button>';}).join("");
+  }else{
+    ch.hidden=true;ch.innerHTML="";vr.hidden=false;$("#chars").hidden=false;
+    var a=$("#ans");a.focus();
+    a.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();submitTyped();}});
+  }
+}
+
+function record(i,ok){
+  var s=stats[i]||{ok:0,ko:0};
+  if(ok)s.ok++;else s.ko++;
+  s.last=ok;stats[i]=s;save();
+}
+
+function finish(ok,given,near){
+  var q=BANK[S.list[S.i]];
+  S.answered=true;
+  record(S.list[S.i],ok);
+  if(ok)S.score++;else S.wrong.push({id:S.list[S.i],given:given});
+  var shown=q.ans[0];
+  var el=$("#ans");
+  if(el){
+    var span=document.createElement("span");
+    span.className="blank "+(ok?"ok":"ko");span.textContent=shown.replace(/'/g,"’");
+    el.replaceWith(span);
+  }else{
+    var sl=$("#slot");sl.className="blank "+(ok?"ok":"ko");sl.textContent=shown.replace(/'/g,"’");
+  }
+  $("#validRow").hidden=true;$("#chars").hidden=true;
+  var title=ok?"Bonne réponse.":(near?"Presque : vérifie les trémas (ä, ö, ü) et le ß.":"Pas tout à fait.");
+  var h='<div class="fb '+(ok?"ok":"ko")+'"><h3>'+title+'</h3>';
+  if(!ok){
+    h+='<p>Réponse attendue : <strong>'+fr(q.ans.join(" ou "))+'</strong></p>';
+    if(given)h+='<p>Ta réponse : '+fr(given)+'</p>';
+  }
+  if(q.ex)h+='<p>'+fr(q.ex)+'</p>';
+  var last=S.i===S.list.length-1;
+  h+='<div class="row"><button class="btn primary" id="nextBtn">'+(last?"Voir le résultat":"Question suivante")+'</button></div></div>';
+  $("#fb").innerHTML=h;
+  setTimeout(function(){var n=$("#nextBtn");if(n)n.focus();},60);
+}
+
+function submitTyped(){
+  if(S.answered)return;
+  var q=BANK[S.list[S.i]],v=$("#ans").value;
+  if(!norm(v)){$("#ans").focus();return;}
+  var ok=q.ans.some(function(a){return norm(a)===norm(v);});
+  var near=!ok&&q.ans.some(function(a){return strip(norm(a))===strip(norm(v));});
+  finish(ok,v.trim(),near);
+}
+
+function pick(btn){
+  if(S.answered)return;
+  var q=BANK[S.list[S.i]],c=btn.getAttribute("data-choice");
+  var ok=q.ans.indexOf(c)>=0;
+  document.querySelectorAll(".choice").forEach(function(b){
+    b.disabled=true;
+    if(q.ans.indexOf(b.getAttribute("data-choice"))>=0)b.classList.add("good");
+  });
+  if(!ok)btn.classList.add("bad");
+  finish(ok,c,false);
+}
+
+function next(){
+  if(S.i<S.list.length-1){S.i++;showQ();}
+  else showResult();
+}
+
+function showResult(){
+  var n=S.list.length,sc=S.score;
+  $("#score").innerHTML=sc+' <small>/ '+n+'</small>';
+  var msg=sc===n?"Sans faute.":(sc>=n*.8?"Très solide. Revois seulement les points ci-dessous.":(sc>=n*.5?"Pas mal. Relis le rappel de cours, puis refais une série.":"Continue, la répétition fait le travail. Commence par le rappel de cours."));
+  $("#scoreMsg").textContent=msg;
+  $("#errs").innerHTML=S.wrong.map(function(w){
+    var q=BANK[w.id];
+    var sentence=esc(q.q).replace("___","<b>"+esc(q.ans[0])+"</b>");
+    return '<li><div>'+sentence.replace(/'/g,"’")+'</div>'+(w.given?'<p class="given">Ta réponse : '+fr(w.given)+'</p>':'')+'</li>';
+  }).join("");
+  show("result");
+}
+
+document.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.hasAttribute("data-ins")){var a=$("#ans");if(a){var p=a.selectionStart==null?a.value.length:a.selectionStart;a.value=a.value.slice(0,p)+t.getAttribute("data-ins")+a.value.slice(a.selectionEnd==null?p:a.selectionEnd);a.focus();a.setSelectionRange(p+1,p+1);}}
+  else if(t.hasAttribute("data-start")){start(t.getAttribute("data-start"));}
+  else if(t.hasAttribute("data-choice")){pick(t);}
+  else if(t.id==="validBtn"){submitTyped();}
+  else if(t.id==="nextBtn"){next();}
+  else if(t.id==="quitBtn"||t.id==="homeBtn"){renderHome();show("home");}
+  else if(t.id==="againBtn"){if(S)start(S.mode);}
+  else if(t.id==="resetBtn"){
+    if(t.getAttribute("data-armed")){stats={};save();t.removeAttribute("data-armed");t.textContent="Effacer ma progression";renderHome();}
+    else{t.setAttribute("data-armed","1");t.textContent="Confirmer l’effacement";}
+  }
+});
+
+renderHome();
+})();
+</script>
+<script>
+if(location.protocol.indexOf("http")===0){var sl=document.getElementById("siteLink");if(sl)sl.hidden=false;}
+</script>
+</body>
+</html>
