@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Atelier de français</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{
+  /* Concept : cahier d'école. Interface sobre bleu encre ; la carte de question reprend la réglure Seyès. */
+  --bg:#F2F5F9; --surface:#FFFFFF; --ink:#15213B; --muted:#58668A; --line:#D7DFEC;
+  --accent:#2B59C3; --on-accent:#FFFFFF; --accent-soft:#E7EDFB;
+  --good:#1B7448; --good-bg:#E3F4EA; --bad:#B0302A; --bad-bg:#FBE9E7;
+  --rule:#DCE6F5; --margin:#EFA3A3;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1528; --surface:#161F38; --ink:#E7ECF8; --muted:#97A5C6; --line:#2A3556;
+    --accent:#86A8FF; --on-accent:#0E1528; --accent-soft:#1E2B52;
+    --good:#6FD39C; --good-bg:#12332A; --bad:#FF9188; --bad-bg:#3A1B1D;
+    --rule:#223055; --margin:#7A3A44; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1528; --surface:#161F38; --ink:#E7ECF8; --muted:#97A5C6; --line:#2A3556;
+  --accent:#86A8FF; --on-accent:#0E1528; --accent-soft:#1E2B52;
+  --good:#6FD39C; --good-bg:#12332A; --bad:#FF9188; --bad-bg:#3A1B1D;
+  --rule:#223055; --margin:#7A3A44; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.5 var(--font-body);
+  padding-block:28px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));}
+.wrap{max-width:860px;margin:0 auto}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(30px,6vw,44px);font-weight:700;letter-spacing:-.01em}
+.tagline{color:var(--muted);margin:10px 0 0;max-width:60ch}
+header{margin-bottom:24px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 16px;font-weight:600}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover:not(:disabled){filter:brightness(1.06)}
+.btn.ghost{background:transparent}
+
+/* Accueil */
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:8px}
+.summary{color:var(--muted);margin:0 0 20px}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.cat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.cat h3{font-size:21px}
+.cat .desc{margin:0;color:var(--muted);font-size:15.5px}
+.meter{height:8px;border-radius:99px;background:var(--accent-soft);overflow:hidden}
+.meter span{display:block;height:100%;background:var(--accent);border-radius:99px}
+.meta{margin:0;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cat .actions{margin-top:auto}
+details{font-size:15.5px}
+summary{cursor:pointer;color:var(--accent);font-weight:600;padding:2px 0}
+details ul{margin:8px 0 0;padding-left:20px;display:grid;gap:6px}
+.reset{margin-top:28px;text-align:right}
+.reset .btn{font-size:14px;padding:8px 12px;color:var(--muted)}
+
+/* Séance */
+.qhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.pill{background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;border-radius:99px;padding:4px 12px}
+.count{color:var(--muted);font-variant-numeric:tabular-nums;font-size:15px}
+.progress{height:6px;background:var(--accent-soft);border-radius:99px;overflow:hidden;margin-bottom:16px}
+.progress span{display:block;height:100%;background:var(--accent);transition:width .25s}
+.card{--lh:36px;background-color:var(--surface);
+  background-image:
+    linear-gradient(to right,transparent 34px,var(--margin) 34px,var(--margin) 36px,transparent 36px),
+    repeating-linear-gradient(to bottom,transparent 0,transparent 35px,var(--rule) 35px,var(--rule) 36px);
+  background-position:0 14px,0 14px;
+  border:1px solid var(--line);border-radius:14px;
+  padding:14px 18px 22px 54px}
+.sentence{font-size:23px;line-height:var(--lh);margin:0;min-height:calc(var(--lh)*2)}
+.blank{font:inherit;display:inline-block;min-width:8ch;text-align:center;border:0;border-bottom:2px solid var(--accent);
+  background:transparent;color:var(--ink);padding:0 6px;height:30px;vertical-align:baseline;border-radius:0}
+input.blank{width:11ch;font-weight:600}
+.blank.ok{color:var(--good);border-color:var(--good);font-weight:700}
+.blank.ko{color:var(--bad);border-color:var(--bad);font-weight:700}
+.slot{color:var(--accent);font-weight:700}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:20px}
+.choice{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;font-size:19px;font-weight:600;text-align:center}
+.choice:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+.choice.good{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+.choice.bad{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.choice:disabled{cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+.fb{margin-top:16px;border-radius:14px;padding:16px 18px;border:1.5px solid}
+.fb.ok{background:var(--good-bg);border-color:var(--good)}
+.fb.ko{background:var(--bad-bg);border-color:var(--bad)}
+.fb h3{font-size:19px;margin-bottom:6px}
+.fb.ok h3{color:var(--good)}
+.fb.ko h3{color:var(--bad)}
+.fb p{margin:4px 0}
+.quit{margin-top:20px}
+
+/* Résultat */
+.score{font-family:var(--font-display);font-size:clamp(56px,14vw,96px);font-weight:700;line-height:1;margin:6px 0;font-variant-numeric:tabular-nums}
+.score small{font-size:.4em;color:var(--muted);font-weight:600}
+.errs{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:10px}
+.errs li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.errs .given{color:var(--bad);font-size:15px;margin:2px 0 0}
+.errs b{color:var(--good)}
+
+@media (max-width:520px){
+  .card{padding:12px 14px 20px 46px;background-image:
+    linear-gradient(to right,transparent 28px,var(--margin) 28px,var(--margin) 30px,transparent 30px),
+    repeating-linear-gradient(to bottom,transparent 0,transparent 35px,var(--rule) 35px,var(--rule) 36px)}
+  .sentence{font-size:21px}
+}
+@media (prefers-reduced-motion:reduce){.progress span{transition:none}}
+#siteLink{margin:0 0 10px;font-size:15px}#siteLink a{color:var(--accent);font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p id="siteLink" hidden><a href="/">&larr; Correcteur de documents</a></p>
+    <h1>Atelier de français</h1>
+    <p class="tagline">Des séries de dix questions sur la conjugaison, les accords et les homophones. Chaque réponse est corrigée et expliquée. Les phrases ratées reviennent en priorité.</p>
+  </header>
+
+  <main>
+    <section id="home">
+      <div class="toolbar">
+        <button class="btn primary" data-start="mix">Série mélangée</button>
+        <button class="btn" id="errBtn" data-start="errors">Revoir mes erreurs</button>
+      </div>
+      <p class="summary" id="summary"></p>
+      <div class="cats" id="cats"></div>
+      <div class="reset"><button class="btn ghost" id="resetBtn">Effacer ma progression</button></div>
+    </section>
+
+    <section id="quiz" hidden>
+      <div class="qhead"><span class="pill" id="qcat"></span><span class="count" id="qcount"></span></div>
+      <div class="progress" aria-hidden="true"><span id="qbar"></span></div>
+      <div class="card">
+        <p class="sentence" id="sentence"></p>
+        <div class="choices" id="choices" hidden></div>
+        <div class="row" id="validRow"><button class="btn primary" id="validBtn">Valider</button></div>
+      </div>
+      <div id="fb" aria-live="polite"></div>
+      <div class="quit"><button class="btn ghost" id="quitBtn">Quitter la série</button></div>
+    </section>
+
+    <section id="result" hidden>
+      <h2>Résultat</h2>
+      <p class="score" id="score"></p>
+      <p id="scoreMsg"></p>
+      <ul class="errs" id="errs"></ul>
+      <div class="row">
+        <button class="btn primary" id="againBtn">Nouvelle série</button>
+        <button class="btn" id="homeBtn">Retour aux exercices</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var CATS=[
+ {id:"present",nom:"Présent",desc:"Terminaisons, verbes irréguliers, verbes en -ger, -cer, -yer.",
+  rappel:["1er groupe : -e, -es, -e, -ons, -ez, -ent.","2e groupe (finir) : -is, -is, -it, -issons, -issez, -issent.","À connaître par cœur : être, avoir, aller, faire, dire, pouvoir, vouloir, venir.","-ger → nous mangeons ; -cer → nous commençons."]},
+ {id:"passe",nom:"Passé composé",desc:"Choix de l'auxiliaire et accord du participe passé.",
+  rappel:["Auxiliaire avoir pour la plupart des verbes.","Auxiliaire être pour aller, venir, partir, naître, tomber… et les verbes pronominaux.","Avec être, le participe s'accorde avec le sujet.","Participes à retenir : pris, mis, vu, fait, dû, eu."]},
+ {id:"imparfait",nom:"Imparfait",desc:"Descriptions et habitudes dans le passé.",
+  rappel:["Terminaisons : -ais, -ais, -ait, -ions, -iez, -aient.","Le radical est celui de nous au présent : nous finissons → je finissais.","Exception : être → j'étais.","Radical en -i : nous étudiions, vous étudiiez."]},
+ {id:"futur",nom:"Futur simple",desc:"Radicaux irréguliers et terminaisons.",
+  rappel:["Terminaisons : -ai, -as, -a, -ons, -ez, -ont.","Radicaux irréguliers : ir-, ser-, aur-, fer-, pourr-, verr-, viendr-, faudr-.","Le r du futur se prononce toujours, même quand on ne l'entend pas à l'écrit : j'appellerai.","Deux r pour courir et mourir : je courrai."]},
+ {id:"modes",nom:"Conditionnel et subjonctif",desc:"« Si j'avais… je ferais » et « il faut que… ».",
+  rappel:["Conditionnel = radical du futur + terminaisons de l'imparfait : je voyagerais.","Après « si » + imparfait, la principale est au conditionnel.","Subjonctif après il faut que, je veux que, bien que, avant que.","Subjonctifs à connaître : que je sois, que j'aie, que j'aille, que je fasse, que je puisse, que je sache."]},
+ {id:"adjectif",nom:"Accord de l'adjectif",desc:"Genre, nombre et cas particuliers.",
+  rappel:["L'adjectif s'accorde avec le nom qu'il qualifie.","Un nom masculin et un nom féminin : accord au masculin pluriel.","Couleur issue d'un nom (orange, marron) : invariable. Couleur composée (bleu clair) : invariable.","Beau, nouveau, vieux deviennent bel, nouvel, vieil devant une voyelle."]},
+ {id:"pluriel",nom:"Pluriel des noms",desc:"Règles générales et exceptions courantes.",
+  rappel:["En général : on ajoute -s.","Noms en -s, -x, -z : invariables (un nez, des nez).","-al → -aux (un cheval, des chevaux) ; -ail → -ails, sauf travaux, vitraux, coraux.","-ou → -ous, sauf bijoux, cailloux, choux, genoux, hiboux, joujoux, poux."]},
+ {id:"participe",nom:"Participe passé",desc:"Avoir, être, verbes pronominaux et COD placé avant.",
+  rappel:["Avec être : accord avec le sujet.","Avec avoir : accord avec le COD seulement s'il est placé avant le verbe.","Verbes pronominaux : accord avec le pronom se s'il est COD ; pas d'accord s'il est COI ou si le COD suit.","Astuce : pose la question « qui ? » ou « quoi ? » après le verbe pour trouver le COD."]},
+ {id:"homophones",nom:"Homophones",desc:"a/à, et/est, son/sont, ses/ces, on/ont, ou/où…",
+  rappel:["a / à : a = verbe avoir (essaie « avait »).","et / est : est = verbe être (essaie « était »).","son / sont : sont = verbe être (essaie « étaient »).","on / ont : ont = verbe avoir (essaie « avaient »).","ou / où : où = lieu ou temps ; ou = « ou bien »."]}
+];
+
+var BANK=[];
+function T(cat,q,ans,ex){BANK.push({cat:cat,type:"t",q:q,ans:[].concat(ans),ex:ex||""});}
+function M(cat,q,choices,ans,ex){BANK.push({cat:cat,type:"m",q:q,choices:choices,ans:[ans],ex:ex||""});}
+
+/* Présent */
+T("present","Nous ___ (manger) à midi.","mangeons","Les verbes en -ger gardent le e devant -ons : nous mangeons, nous voyageons.");
+T("present","Ils ___ (finir) leur travail.","finissent","Finir (2e groupe) prend -iss- au pluriel : ils finissent.");
+T("present","Tu ___ (prendre) le bus ?","prends","Prendre : je prends, tu prends, il prend.");
+T("present","Vous ___ (dire) la vérité.","dites","Exception : vous dites, et non « disez ». C'est comme vous faites.");
+T("present","Nous ___ (commencer) la leçon.","commençons","Le c devient ç devant a, o, u pour garder le son [s] : nous commençons.");
+T("present","Elles ___ (aller) à l'école.","vont","Aller : je vais, tu vas, il va, nous allons, vous allez, ils vont.");
+T("present","Vous ___ (faire) du bon travail.","faites","Faire : vous faites (forme irrégulière).");
+T("present","Il ___ (vouloir) un café.","veut","Vouloir : je veux, tu veux, il veut.");
+T("present","Tu ___ (pouvoir) venir demain ?","peux","Pouvoir : je peux, tu peux, il peut.");
+T("present","J'___ (appeler) ma sœur.","appelle","Appeler double le l quand la terminaison est muette : j'appelle, ils appellent.");
+T("present","Ils ___ (venir) ce soir.","viennent","Venir : ils viennent.");
+T("present","Je ___ (payer) la facture.",["paie","paye"],"Payer admet deux formes : je paie ou je paye.");
+T("present","Vous ___ (être) en retard.","êtes","Être : vous êtes, avec accent circonflexe.");
+T("present","Nous ___ (jeter) les papiers.","jetons","Devant -ons, pas de doublement : nous jetons. Le t double devant une terminaison muette : ils jettent.");
+
+/* Passé composé */
+T("passe","Hier, mes amies et moi ___ (aller) au marché.","sommes allées","Aller se conjugue avec être. Le participe s'accorde avec le sujet : « mes amies et moi » est féminin pluriel.");
+T("passe","Elle ___ (prendre) le train de 8 h.","a pris","Prendre se conjugue avec avoir. Participe passé : pris.");
+T("passe","Ils ___ (venir) hier soir.","sont venus","Venir se conjugue avec être. Sujet masculin pluriel : venus.");
+T("passe","J'___ (finir) mes devoirs.","ai fini","Finir se conjugue avec avoir : j'ai fini.");
+T("passe","Marie ___ (naître) en 1990.","est née","Naître se conjugue avec être. Sujet féminin : née.");
+T("passe","Elle ___ (se lever) tôt ce matin.","s'est levée","Les verbes pronominaux se conjuguent avec être. Ici se est COD : accord avec elle, donc levée.");
+T("passe","Nous ___ (voir) un très bon film.","avons vu","Voir se conjugue avec avoir. Participe passé : vu.");
+T("passe","Vous ___ (faire) du bon travail.","avez fait","Faire se conjugue avec avoir. Participe passé : fait.");
+T("passe","Elles ___ (partir) très tôt.","sont parties","Partir se conjugue avec être : accord au féminin pluriel.");
+T("passe","Il ___ (devoir) partir plus tôt.","a dû","Le participe de devoir prend un accent circonflexe au masculin singulier : dû (mais due, dus, dues).");
+T("passe","Tu ___ (mettre) ton manteau ?","as mis","Mettre : participe passé mis.");
+T("passe","Elles ___ (tomber) dans l'escalier.","sont tombées","Tomber se conjugue avec être : accord avec le sujet, féminin pluriel.");
+
+/* Imparfait */
+T("imparfait","Quand j'étais petit, je ___ (jouer) dehors.","jouais","Imparfait : -ais, -ais, -ait, -ions, -iez, -aient.");
+T("imparfait","Nous ___ (manger) souvent ensemble.","mangions","Le e de -ger disparaît devant i : nous mangions (mais je mangeais).");
+T("imparfait","Vous ___ (finir) toujours en retard.","finissiez","Finir prend le radical finiss- à l'imparfait.");
+T("imparfait","Ils ___ (avoir) peur du noir.","avaient","Avoir : j'avais, tu avais, il avait, nous avions, vous aviez, ils avaient.");
+T("imparfait","Tu ___ (être) très timide.","étais","Être : radical ét- (j'étais, tu étais…).");
+T("imparfait","Nous ___ (étudier) le soir.","étudiions","Radical en -i + terminaison -ions : deux i de suite.");
+T("imparfait","Il ___ (pleuvoir) toute la journée.","pleuvait","Pleuvoir : il pleuvait.");
+T("imparfait","Elles ___ (faire) du sport.","faisaient","Faire : radical fais- à l'imparfait, même si on prononce [fə].");
+T("imparfait","Je ___ (commencer) à comprendre.","commençais","Le c prend une cédille devant a : je commençais.");
+T("imparfait","Nous ___ (voyager) en train.","voyagions","Pas de e devant -ions : nous voyagions.");
+T("imparfait","Vous ___ (croire) cette histoire ?","croyiez","Croire : radical croy- à l'imparfait (nous croyions, vous croyiez).");
+
+/* Futur */
+T("futur","Demain, je ___ (aller) au musée.","irai","Aller : radical ir- au futur.");
+T("futur","Tu ___ (avoir) de la chance.","auras","Avoir : radical aur- au futur.");
+T("futur","Nous ___ (être) à l'heure.","serons","Être : radical ser- au futur.");
+T("futur","Ils ___ (voir) le résultat demain.","verront","Voir : radical verr- au futur (deux r).");
+T("futur","Elle ___ (envoyer) le colis.","enverra","Envoyer : radical enverr- au futur.");
+T("futur","Vous ___ (pouvoir) entrer.","pourrez","Pouvoir : radical pourr- au futur.");
+T("futur","Je ___ (faire) un gâteau.","ferai","Faire : radical fer- au futur.");
+T("futur","Nous ___ (appeler) le médecin.","appellerons","Appeler double le l au futur : j'appellerai, nous appellerons.");
+T("futur","Demain, il ___ (falloir) partir tôt.","faudra","Falloir : il faudra.");
+T("futur","Ils ___ (venir) à la fête.","viendront","Venir : radical viendr- au futur.");
+T("futur","Tu ___ (savoir) la vérité.","sauras","Savoir : radical saur- au futur.");
+T("futur","Je ___ (courir) le marathon.","courrai","Courir : je courrai, avec deux r.");
+
+/* Conditionnel et subjonctif */
+T("modes","Si j'avais le temps, je ___ (voyager) plus.","voyagerais","Après « si » + imparfait, la principale est au conditionnel : radical du futur + -ais.");
+T("modes","Si tu étais là, nous ___ (pouvoir) en parler.","pourrions","Conditionnel de pouvoir : radical pourr- + -ions.");
+T("modes","Il faut que tu ___ (venir) demain.","viennes","Après il faut que, on utilise le subjonctif : que tu viennes.");
+T("modes","Il faut que nous ___ (aller) chez le médecin.","allions","Subjonctif d'aller : que j'aille, que nous allions.");
+T("modes","Je veux que vous ___ (être) à l'heure.","soyez","Subjonctif d'être : que je sois, que vous soyez.");
+T("modes","Il faut qu'elle ___ (avoir) du courage.","ait","Subjonctif d'avoir : que j'aie, qu'il ait, que nous ayons.");
+T("modes","Il faut que je ___ (faire) mes devoirs.","fasse","Subjonctif de faire : que je fasse.");
+T("modes","Bien qu'ils ___ (pouvoir) venir, ils restent chez eux.","puissent","Bien que est suivi du subjonctif : qu'ils puissent.");
+T("modes","Si elle gagnait, elle ___ (acheter) une maison.","achèterait","Acheter prend un accent grave devant une syllabe muette : elle achètera, elle achèterait.");
+T("modes","Il faut que vous ___ (savoir) la leçon.","sachiez","Subjonctif de savoir : que je sache, que vous sachiez.");
+T("modes","Il faudrait que tu ___ (prendre) ton temps.","prennes","Subjonctif de prendre : que tu prennes (comme au présent de ils prennent).");
+T("modes","Je ___ (vouloir) un verre d'eau, s'il vous plaît.","voudrais","Le conditionnel sert aussi à demander poliment : je voudrais.");
+
+/* Adjectif */
+M("adjectif","Ces robes sont ___.",["vertes","verts","verte","vert"],"vertes","L'adjectif s'accorde avec le nom : robes est féminin pluriel.");
+M("adjectif","Elle est très ___.",["heureuse","heureux","heureuses","heureus"],"heureuse","Les adjectifs en -eux font -euse au féminin.");
+M("adjectif","Elle porte des chaussettes ___.",["orange","oranges"],"orange","Une couleur qui vient d'un nom (orange, marron, citron) reste invariable.");
+M("adjectif","Mes parents sont très ___.",["gentils","gentil","gentille","gentilles"],"gentils","Parents est masculin pluriel : gentils.");
+M("adjectif","Voici une réponse ___.",["complète","complet","complètes","complets"],"complète","Complet fait complète au féminin, avec un accent grave.");
+M("adjectif","Elle a les yeux ___ clair.",["bleu","bleus"],"bleu","Une couleur composée (bleu clair, vert foncé) est invariable.");
+M("adjectif","Sophie et Tom sont ___ de leur voyage.",["ravis","ravie","ravies","ravi"],"ravis","Quand un nom féminin et un nom masculin sont réunis, l'adjectif se met au masculin pluriel.");
+M("adjectif","Cette fleur est ___.",["belle","beau","bel","belles"],"belle","Fleur est féminin singulier : belle.");
+M("adjectif","C'est un ___ homme.",["bel","beau","belle","beaux"],"bel","Beau devient bel devant un nom masculin qui commence par une voyelle ou un h muet.");
+M("adjectif","Les feuilles ___ couvrent le sol.",["mortes","morts","morte","mort"],"mortes","Feuilles est féminin pluriel : mortes.");
+M("adjectif","Elles sont ___ de partir.",["obligées","obligés","obligé","obligée"],"obligées","Le sujet elles est féminin pluriel : obligées.");
+
+/* Pluriel */
+M("pluriel","Les ___ galopent dans le pré.",["chevaux","chevals","chevaus","chevaulx"],"chevaux","Les noms en -al font -aux au pluriel : un cheval, des chevaux.");
+M("pluriel","Les ___ de la ville sont en vente.",["journaux","journals","journaus","journaulx"],"journaux","Journal → journaux (règle des noms en -al).");
+M("pluriel","Il a perdu deux ___.",["bijoux","bijous","bijoues"],"bijoux","Bijou fait bijoux. Les sept exceptions en -ou : bijou, caillou, chou, genou, hibou, joujou, pou.");
+M("pluriel","Les ___ du jardin sont fermés.",["portails","portaux","portail"],"portails","Les noms en -ail font -ails, sauf quelques exceptions comme travail → travaux.");
+M("pluriel","Il y a des ___ dans la route.",["trous","troux","trouts"],"trous","Trou fait trous. Seuls sept noms en -ou prennent un x.");
+M("pluriel","Elle a mal aux ___.",["genoux","genous","genouxs"],"genoux","Genou fait genoux (une des sept exceptions en -ou).");
+M("pluriel","Il a plusieurs ___ à finir.",["travaux","travails","travaus"],"travaux","Travail fait travaux au pluriel.");
+M("pluriel","Ces ___ vivent dans la savane.",["animaux","animals","animaus"],"animaux","Animal → animaux.");
+M("pluriel","Il a crevé deux ___.",["pneus","pneux","pneu"],"pneus","Pneu fait pneus (exception aux noms en -eu qui prennent x : cheveux, jeux, feux).");
+M("pluriel","Elle a de beaux ___ verts.",["yeux","oeils","yeuxs"],"yeux","Œil a un pluriel irrégulier : yeux.");
+M("pluriel","Les clowns ont des ___ rouges.",["nez","nezs","nezes"],"nez","Les noms terminés par -s, -x ou -z ne changent pas au pluriel.");
+M("pluriel","Ces ___ sont délicieux.",["gâteaux","gâteaus","gâteauxs"],"gâteaux","Les noms en -eau font -eaux : gâteau, bateau, manteau.");
+
+/* Participe passé */
+M("participe","Les fleurs que j'ai ___ sentent bon.",["cueillies","cueilli","cueillis","cueillie"],"cueillies","Le COD « que » (les fleurs) est placé avant : accord au féminin pluriel.");
+M("participe","Elle est ___ hier.",["partie","parti","partis","parties"],"partie","Avec être, le participe s'accorde avec le sujet : elle → partie.");
+M("participe","Ils ont ___ leurs clés.",["perdu","perdus","perdue","perdues"],"perdu","Avec avoir, pas d'accord : le COD « leurs clés » est placé après le verbe.");
+M("participe","La lettre qu'il a ___ est arrivée.",["écrite","écrit","écrits","écrites"],"écrite","Le COD « que » (la lettre) est placé avant : accord au féminin singulier.");
+M("participe","Elles se sont ___ les mains.",["lavé","lavée","lavées","lavés"],"lavé","Le COD « les mains » vient après le verbe : pas d'accord. Se est ici complément d'attribution.");
+M("participe","Elles se sont ___ au téléphone.",["parlé","parlée","parlés","parlées"],"parlé","On parle à quelqu'un : se est COI, donc pas d'accord.");
+M("participe","Mes sœurs sont ___ en retard.",["arrivées","arrivé","arrivés","arrivée"],"arrivées","Avec être, accord avec le sujet : féminin pluriel.");
+M("participe","Les efforts qu'elle a ___ sont énormes.",["faits","fait","faite","faites"],"faits","Le COD « que » (les efforts) est placé avant et masculin pluriel : faits.");
+M("participe","Quelle chanson as-tu ___ ?",["entendue","entendu","entendus","entendues"],"entendue","Le COD « quelle chanson » est placé avant : accord au féminin singulier.");
+M("participe","Elle s'est ___ en tombant.",["blessée","blessé","blessés","blessées"],"blessée","Se est COD (elle a blessé elle-même) : accord avec elle.");
+
+/* Homophones */
+M("homophones","Il ___ un chat.",["a","à"],"a","Essaie « avait » : il avait un chat. C'est donc le verbe avoir.");
+M("homophones","Je vais ___ Paris.",["à","a"],"à","« Avait » ne marche pas ici. C'est la préposition à.");
+M("homophones","Elle ___ gentille.",["est","et"],"est","Essaie « était » : elle était gentille. C'est le verbe être.");
+M("homophones","Tom ___ Léa sont amis.",["et","est"],"et","Ici « et » relie deux noms. On ne peut pas dire « était ».");
+M("homophones","Il a oublié ___ lunettes chez lui.",["ses","ces","c'est","s'est"],"ses","Ses indique la possession : les lunettes de lui.");
+M("homophones","Regarde ___ nuages, il va pleuvoir.",["ces","ses","c'est","s'est"],"ces","Ces désigne ce qu'on montre : ces nuages-là.");
+M("homophones","Ils ___ partis hier.",["sont","son"],"sont","Essaie « étaient » : ils étaient partis. C'est le verbe être.");
+M("homophones","Il range ___ vélo.",["son","sont"],"son","Son = déterminant possessif (le vélo de lui).");
+M("homophones","Ils ___ faim.",["ont","on"],"ont","Essaie « avaient » : ils avaient faim. C'est le verbe avoir.");
+M("homophones","___ va au cinéma ce soir ?",["On","Ont"],"On","On = nous / quelqu'un. Impossible de dire « avaient ».");
+M("homophones","Veux-tu du thé ___ du café ?",["ou","où"],"ou","Ou = « ou bien », choix entre deux possibilités.");
+M("homophones","Dis-moi ___ tu habites.",["où","ou"],"où","Où indique un lieu (ou un moment).");
+M("homophones","Il ___ levé tôt ce matin.",["s'est","c'est","ses","ces"],"s'est","Verbe pronominal : il se lève → il s'est levé.");
+M("homophones","___ un beau jour.",["C'est","S'est","Ces","Ses"],"C'est","C'est = cela est. Essaie « c'était ».");
+
+var KEY="atelier-francais-v1", stats={};
+try{stats=JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){stats={};}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(stats));}catch(e){}}
+
+function $(s){return document.querySelector(s);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function fr(s){return esc(String(s).replace(/'/g,"’"));}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function norm(s){return String(s).toLowerCase().replace(/[’‘`]/g,"'").replace(/\s+/g," ").trim();}
+function strip(s){return s.normalize("NFD").replace(/[̀-ͯ]/g,"");}
+function catName(id){for(var i=0;i<CATS.length;i++){if(CATS[i].id===id)return CATS[i].nom;}return "";}
+function show(id){["home","quiz","result"].forEach(function(v){$("#"+v).hidden=(v!==id);});window.scrollTo(0,0);}
+
+BANK.forEach(function(q,i){if(q.type==="m"&&q.choices.indexOf(q.ans[0])<0){console.warn("Réponse absente des choix, question",i);}});
+
+function last(i){return stats[i]?stats[i].last:undefined;}
+
+function renderHome(){
+  var total=BANK.length,mastered=0,errs=0;
+  var html=CATS.map(function(c){
+    var idx=[];BANK.forEach(function(q,i){if(q.cat===c.id)idx.push(i);});
+    var ok=idx.filter(function(i){return last(i)===true;}).length;
+    mastered+=ok;
+    errs+=idx.filter(function(i){return last(i)===false;}).length;
+    var pct=Math.round(ok/idx.length*100);
+    return '<article class="cat"><h3>'+esc(c.nom)+'</h3><p class="desc">'+fr(c.desc)+'</p>'+
+      '<div class="meter" role="img" aria-label="'+ok+' sur '+idx.length+' réussies"><span style="width:'+pct+'%"></span></div>'+
+      '<p class="meta">'+ok+' / '+idx.length+' réussies</p>'+
+      '<div class="actions"><button class="btn primary" data-start="'+c.id+'">S’entraîner</button></div>'+
+      '<details><summary>Rappel de cours</summary><ul>'+c.rappel.map(function(r){return "<li>"+fr(r)+"</li>";}).join("")+'</ul></details></article>';
+  }).join("");
+  $("#cats").innerHTML=html;
+  $("#summary").textContent=mastered+" questions réussies sur "+total+".";
+  var b=$("#errBtn");b.disabled=errs===0;b.textContent=errs?"Revoir mes erreurs ("+errs+")":"Revoir mes erreurs";
+}
+
+var S=null;
+
+function start(mode){
+  var pool=[];
+  BANK.forEach(function(q,i){
+    if(mode==="mix"||q.cat===mode||(mode==="errors"&&last(i)===false))pool.push(i);
+  });
+  if(!pool.length)return;
+  var pr=function(i){var l=last(i);return l===false?0:(l===undefined?1:2);};
+  pool=shuffle(pool).sort(function(a,b){return pr(a)-pr(b);}).slice(0,10);
+  S={mode:mode,list:shuffle(pool),i:0,score:0,wrong:[],answered:false};
+  show("quiz");showQ();
+}
+
+function showQ(){
+  var q=BANK[S.list[S.i]];
+  S.answered=false;
+  $("#qcat").textContent=catName(q.cat);
+  $("#qcount").textContent="Question "+(S.i+1)+" sur "+S.list.length;
+  $("#qbar").style.width=(S.i/S.list.length*100)+"%";
+  $("#fb").innerHTML="";
+  var parts=q.q.split("___");
+  var blank=q.type==="t"
+    ? '<input id="ans" class="blank" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Ta réponse">'
+    : '<span id="slot" class="blank slot">&nbsp;</span>';
+  $("#sentence").innerHTML=fr(parts[0])+blank+fr(parts[1]||"");
+  var ch=$("#choices"),vr=$("#validRow");
+  if(q.type==="m"){
+    ch.hidden=false;vr.hidden=true;
+    ch.innerHTML=shuffle(q.choices).map(function(c){return '<button class="choice" data-choice="'+esc(c)+'">'+fr(c)+'</button>';}).join("");
+  }else{
+    ch.hidden=true;ch.innerHTML="";vr.hidden=false;
+    var a=$("#ans");a.focus();
+    a.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();submitTyped();}});
+  }
+}
+
+function record(i,ok){
+  var s=stats[i]||{ok:0,ko:0};
+  if(ok)s.ok++;else s.ko++;
+  s.last=ok;stats[i]=s;save();
+}
+
+function finish(ok,given,near){
+  var q=BANK[S.list[S.i]];
+  S.answered=true;
+  record(S.list[S.i],ok);
+  if(ok)S.score++;else S.wrong.push({id:S.list[S.i],given:given});
+  var shown=q.ans[0];
+  var el=$("#ans");
+  if(el){
+    var span=document.createElement("span");
+    span.className="blank "+(ok?"ok":"ko");span.textContent=shown.replace(/'/g,"’");
+    el.replaceWith(span);
+  }else{
+    var sl=$("#slot");sl.className="blank "+(ok?"ok":"ko");sl.textContent=shown.replace(/'/g,"’");
+  }
+  $("#validRow").hidden=true;
+  var title=ok?"Bonne réponse.":(near?"Presque : vérifie les accents.":"Pas tout à fait.");
+  var h='<div class="fb '+(ok?"ok":"ko")+'"><h3>'+title+'</h3>';
+  if(!ok){
+    h+='<p>Réponse attendue : <strong>'+fr(q.ans.join(" ou "))+'</strong></p>';
+    if(given)h+='<p>Ta réponse : '+fr(given)+'</p>';
+  }
+  if(q.ex)h+='<p>'+fr(q.ex)+'</p>';
+  var last=S.i===S.list.length-1;
+  h+='<div class="row"><button class="btn primary" id="nextBtn">'+(last?"Voir le résultat":"Question suivante")+'</button></div></div>';
+  $("#fb").innerHTML=h;
+  setTimeout(function(){var n=$("#nextBtn");if(n)n.focus();},60);
+}
+
+function submitTyped(){
+  if(S.answered)return;
+  var q=BANK[S.list[S.i]],v=$("#ans").value;
+  if(!norm(v)){$("#ans").focus();return;}
+  var ok=q.ans.some(function(a){return norm(a)===norm(v);});
+  var near=!ok&&q.ans.some(function(a){return strip(norm(a))===strip(norm(v));});
+  finish(ok,v.trim(),near);
+}
+
+function pick(btn){
+  if(S.answered)return;
+  var q=BANK[S.list[S.i]],c=btn.getAttribute("data-choice");
+  var ok=q.ans.indexOf(c)>=0;
+  document.querySelectorAll(".choice").forEach(function(b){
+    b.disabled=true;
+    if(q.ans.indexOf(b.getAttribute("data-choice"))>=0)b.classList.add("good");
+  });
+  if(!ok)btn.classList.add("bad");
+  finish(ok,c,false);
+}
+
+function next(){
+  if(S.i<S.list.length-1){S.i++;showQ();}
+  else showResult();
+}
+
+function showResult(){
+  var n=S.list.length,sc=S.score;
+  $("#score").innerHTML=sc+' <small>/ '+n+'</small>';
+  var msg=sc===n?"Sans faute.":(sc>=n*.8?"Très solide. Revois seulement les points ci-dessous.":(sc>=n*.5?"Pas mal. Relis le rappel de cours, puis refais une série.":"Continue, la répétition fait le travail. Commence par le rappel de cours."));
+  $("#scoreMsg").textContent=msg;
+  $("#errs").innerHTML=S.wrong.map(function(w){
+    var q=BANK[w.id];
+    var sentence=esc(q.q).replace("___","<b>"+esc(q.ans[0])+"</b>");
+    return '<li><div>'+sentence.replace(/'/g,"’")+'</div>'+(w.given?'<p class="given">Ta réponse : '+fr(w.given)+'</p>':'')+'</li>';
+  }).join("");
+  show("result");
+}
+
+document.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.hasAttribute("data-start")){start(t.getAttribute("data-start"));}
+  else if(t.hasAttribute("data-choice")){pick(t);}
+  else if(t.id==="validBtn"){submitTyped();}
+  else if(t.id==="nextBtn"){next();}
+  else if(t.id==="quitBtn"||t.id==="homeBtn"){renderHome();show("home");}
+  else if(t.id==="againBtn"){if(S)start(S.mode);}
+  else if(t.id==="resetBtn"){
+    if(t.getAttribute("data-armed")){stats={};save();t.removeAttribute("data-armed");t.textContent="Effacer ma progression";renderHome();}
+    else{t.setAttribute("data-armed","1");t.textContent="Confirmer l’effacement";}
+  }
+});
+
+renderHome();
+})();
+</script>
+<script>
+if(location.protocol.indexOf("http")===0){
+  var sl=document.getElementById("siteLink");if(sl)sl.hidden=false;
+  var ml=document.createElement("link");ml.rel="manifest";ml.href="/manifest.webmanifest";document.head.appendChild(ml);
+  if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").catch(function(){});}
+}
+</script>
+</body>
+</html>
