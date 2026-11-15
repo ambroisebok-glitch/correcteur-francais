@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Atelier d’anglais</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{
+  /* Concept : cahier d'école. Interface sobre bleu encre ; la carte de question reprend la réglure Seyès. */
+  --bg:#F2F5F9; --surface:#FFFFFF; --ink:#15213B; --muted:#58668A; --line:#D7DFEC;
+  --accent:#2B59C3; --on-accent:#FFFFFF; --accent-soft:#E7EDFB;
+  --good:#1B7448; --good-bg:#E3F4EA; --bad:#B0302A; --bad-bg:#FBE9E7;
+  --rule:#DCE6F5; --margin:#EFA3A3;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1528; --surface:#161F38; --ink:#E7ECF8; --muted:#97A5C6; --line:#2A3556;
+    --accent:#86A8FF; --on-accent:#0E1528; --accent-soft:#1E2B52;
+    --good:#6FD39C; --good-bg:#12332A; --bad:#FF9188; --bad-bg:#3A1B1D;
+    --rule:#223055; --margin:#7A3A44; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1528; --surface:#161F38; --ink:#E7ECF8; --muted:#97A5C6; --line:#2A3556;
+  --accent:#86A8FF; --on-accent:#0E1528; --accent-soft:#1E2B52;
+  --good:#6FD39C; --good-bg:#12332A; --bad:#FF9188; --bad-bg:#3A1B1D;
+  --rule:#223055; --margin:#7A3A44; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.5 var(--font-body);
+  padding-block:28px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));}
+.wrap{max-width:860px;margin:0 auto}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(30px,6vw,44px);font-weight:700;letter-spacing:-.01em}
+.tagline{color:var(--muted);margin:10px 0 0;max-width:60ch}
+header{margin-bottom:24px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 16px;font-weight:600}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover:not(:disabled){filter:brightness(1.06)}
+.btn.ghost{background:transparent}
+
+/* Accueil */
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:8px}
+.summary{color:var(--muted);margin:0 0 20px}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.cat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.cat h3{font-size:21px}
+.cat .desc{margin:0;color:var(--muted);font-size:15.5px}
+.meter{height:8px;border-radius:99px;background:var(--accent-soft);overflow:hidden}
+.meter span{display:block;height:100%;background:var(--accent);border-radius:99px}
+.meta{margin:0;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cat .actions{margin-top:auto}
+details{font-size:15.5px}
+summary{cursor:pointer;color:var(--accent);font-weight:600;padding:2px 0}
+details ul{margin:8px 0 0;padding-left:20px;display:grid;gap:6px}
+.reset{margin-top:28px;text-align:right}
+.reset .btn{font-size:14px;padding:8px 12px;color:var(--muted)}
+
+/* Séance */
+.qhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.pill{background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;border-radius:99px;padding:4px 12px}
+.count{color:var(--muted);font-variant-numeric:tabular-nums;font-size:15px}
+.progress{height:6px;background:var(--accent-soft);border-radius:99px;overflow:hidden;margin-bottom:16px}
+.progress span{display:block;height:100%;background:var(--accent);transition:width .25s}
+.card{--lh:36px;background-color:var(--surface);
+  background-image:
+    linear-gradient(to right,transparent 34px,var(--margin) 34px,var(--margin) 36px,transparent 36px),
+    repeating-linear-gradient(to bottom,transparent 0,transparent 35px,var(--rule) 35px,var(--rule) 36px);
+  background-position:0 14px,0 14px;
+  border:1px solid var(--line);border-radius:14px;
+  padding:14px 18px 22px 54px}
+.sentence{font-size:23px;line-height:var(--lh);margin:0;min-height:calc(var(--lh)*2)}
+.blank{font:inherit;display:inline-block;min-width:8ch;text-align:center;border:0;border-bottom:2px solid var(--accent);
+  background:transparent;color:var(--ink);padding:0 6px;height:30px;vertical-align:baseline;border-radius:0}
+input.blank{width:11ch;font-weight:600}
+.blank.ok{color:var(--good);border-color:var(--good);font-weight:700}
+.blank.ko{color:var(--bad);border-color:var(--bad);font-weight:700}
+.slot{color:var(--accent);font-weight:700}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:20px}
+.choice{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;font-size:19px;font-weight:600;text-align:center}
+.choice:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+.choice.good{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+.choice.bad{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.choice:disabled{cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+.fb{margin-top:16px;border-radius:14px;padding:16px 18px;border:1.5px solid}
+.fb.ok{background:var(--good-bg);border-color:var(--good)}
+.fb.ko{background:var(--bad-bg);border-color:var(--bad)}
+.fb h3{font-size:19px;margin-bottom:6px}
+.fb.ok h3{color:var(--good)}
+.fb.ko h3{color:var(--bad)}
+.fb p{margin:4px 0}
+.quit{margin-top:20px}
+
+/* Résultat */
+.score{font-family:var(--font-display);font-size:clamp(56px,14vw,96px);font-weight:700;line-height:1;margin:6px 0;font-variant-numeric:tabular-nums}
+.score small{font-size:.4em;color:var(--muted);font-weight:600}
+.errs{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:10px}
+.errs li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.errs .given{color:var(--bad);font-size:15px;margin:2px 0 0}
+.errs b{color:var(--good)}
+
+@media (max-width:520px){
+  .card{padding:12px 14px 20px 46px;background-image:
+    linear-gradient(to right,transparent 28px,var(--margin) 28px,var(--margin) 30px,transparent 30px),
+    repeating-linear-gradient(to bottom,transparent 0,transparent 35px,var(--rule) 35px,var(--rule) 36px)}
+  .sentence{font-size:21px}
+}
+@media (prefers-reduced-motion:reduce){.progress span{transition:none}}
+#siteLink{margin:0 0 10px;font-size:15px}#siteLink a{color:var(--accent);font-weight:600}
+.sign{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;text-align:center}
+.sign b{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p id="siteLink" hidden><a href="/">&larr; Correcteur de documents</a></p>
+    <h1>Atelier d’anglais</h1>
+    <p class="tagline">Des séries de dix questions sur les temps, les verbes modaux, les articles, les prépositions et les faux amis. Chaque réponse est corrigée et expliquée. Les phrases ratées reviennent en priorité.</p>
+  </header>
+
+  <main>
+    <section id="home">
+      <div class="toolbar">
+        <button class="btn primary" data-start="mix">Série mélangée</button>
+        <button class="btn" id="errBtn" data-start="errors">Revoir mes erreurs</button>
+      </div>
+      <p class="summary" id="summary"></p>
+      <div class="cats" id="cats"></div>
+      <div class="reset"><button class="btn ghost" id="resetBtn">Effacer ma progression</button></div>
+    </section>
+
+    <section id="quiz" hidden>
+      <div class="qhead"><span class="pill" id="qcat"></span><span class="count" id="qcount"></span></div>
+      <div class="progress" aria-hidden="true"><span id="qbar"></span></div>
+      <div class="card">
+        <p class="sentence" id="sentence"></p>
+        <div class="choices" id="choices" hidden></div>
+        <div class="row" id="validRow"><button class="btn primary" id="validBtn">Valider</button></div>
+      </div>
+      <div id="fb" aria-live="polite"></div>
+      <div class="quit"><button class="btn ghost" id="quitBtn">Quitter la série</button></div>
+    </section>
+
+    <section id="result" hidden>
+      <h2>Résultat</h2>
+      <p class="score" id="score"></p>
+      <p id="scoreMsg"></p>
+      <ul class="errs" id="errs"></ul>
+      <div class="row">
+        <button class="btn primary" id="againBtn">Nouvelle série</button>
+        <button class="btn" id="homeBtn">Retour aux exercices</button>
+      </div>
+    </section>
+  </main>
+  <footer class="sign">Créé par <b>Ambroise BOKOUMBO</b></footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var CATS=[
+ {id:"present",nom:"Présent (simple et continu)",desc:"Le -s de la 3e personne, be + -ing, verbes d'état.",
+  rappel:["Présent simple : habitudes et vérités générales. À la 3e personne du singulier, on ajoute -s : she works.","Présent continu (be + verbe en -ing) : ce qui se passe en ce moment : I am reading.","Verbes d'état (know, like, want, need, understand) : pas de forme en -ing.","Orthographe : -y devient -ies (studies) ; après -o, -sh, -ch, -s, -x on ajoute -es (goes, watches)."]},
+ {id:"past",nom:"Prétérit (past simple)",desc:"Verbes réguliers et irréguliers, did / didn't.",
+  rappel:["Le prétérit exprime une action terminée dans le passé : I visited Paris last year.","Verbes réguliers : -ed (worked, studied, stopped).","Irréguliers à connaître : go → went, see → saw, have → had, buy → bought, take → took, eat → ate, come → came, write → wrote.","Question et négation : did / didn't + verbe à l'infinitif (Did you go ? I didn't go)."]},
+ {id:"perfect",nom:"Present perfect",desc:"have / has + participe passé, for, since, just, yet.",
+  rappel:["Present perfect = have / has + participe passé. Il relie le passé au présent : I have lost my keys.","Avec un moment précis du passé (yesterday, last week, in 2010), on utilise le prétérit.","for + durée (for two years) ; since + point de départ (since 2020).","Participes irréguliers : been, gone, seen, done, taken, written, eaten, known."]},
+ {id:"future",nom:"Futur",desc:"will, be going to, présent continu, et le présent après if.",
+  rappel:["will : décision prise sur le moment, prévision, promesse : I'll help you.","be going to : intention déjà décidée, ou prévision fondée sur ce qu'on voit : It's going to rain.","Présent continu : rendez-vous arrangé : I'm meeting Tom at 6.","Après if, when, as soon as : présent, jamais will : If it rains, we will stay at home."]},
+ {id:"modals",nom:"Verbes modaux",desc:"can, could, must, should, have to.",
+  rappel:["Les modaux n'ont pas de -s à la 3e personne : she can swim.","Après un modal : verbe à l'infinitif sans to.","must : obligation forte ; mustn't : interdiction ; don't have to : pas obligé.","should : conseil ; could : demande polie ou capacité passée ; have to remplace must au passé (had to)."]},
+ {id:"questions",nom:"Questions et négations",desc:"do, does, did et l'ordre des mots.",
+  rappel:["Au présent simple : do / does + sujet + verbe (Does she work here ?).","Négation : don't / doesn't + verbe sans -s (She doesn't work).","Avec be, on inverse directement : Are you ready ? He isn't here.","Le mot interrogatif se place avant l'auxiliaire : Where do you live ?"]},
+ {id:"articles",nom:"Articles",desc:"a, an, the, ou pas d'article.",
+  rappel:["a devant un son consonne, an devant un son voyelle : a book, an apple, an hour, a university.","the : ce dont on a déjà parlé, ou ce qui est unique : the sun.","Pas d'article avec les noms pluriels ou indénombrables pris au sens général : I love music.","Pas d'article devant la plupart des pays, des villes et des langues (mais the United States, the UK)."]},
+ {id:"prep",nom:"Prépositions",desc:"in, on, at, et les prépositions qui suivent certains mots.",
+  rappel:["at : heure précise (at 3 p.m.), lieu précis (at school).","on : jours et dates (on Monday), surface (on the table).","in : mois, années, saisons (in May, in 2024), villes et pays (in Paris).","À retenir : depend on, listen to, wait for, good at, interested in, afraid of."]},
+ {id:"faux",nom:"Faux amis",desc:"Les pièges entre le français et l'anglais.",
+  rappel:["actually = en fait ; actuellement = currently.","eventually = finalement ; éventuellement = possibly.","library = bibliothèque ; librairie = bookshop.","attend = assister à ; attendre = wait for.","sensitive = sensible ; sensible = sensible (raisonnable).","advice (conseil) est indénombrable : some advice, pas « an advice »."]}
+];
+
+var BANK=[];
+function T(cat,q,ans,ex){BANK.push({cat:cat,type:"t",q:q,ans:[].concat(ans),ex:ex||""});}
+function M(cat,q,choices,ans,ex){BANK.push({cat:cat,type:"m",q:q,choices:choices,ans:[ans],ex:ex||""});}
+
+/* Présent */
+T("present","She ___ (work) in a bank.","works","3e personne du singulier : on ajoute -s.");
+T("present","He ___ (study) English every day.","studies","Verbe en consonne + y : y devient ies à la 3e personne.");
+T("present","My brother ___ (go) to school by bus.","goes","Après -o, on ajoute -es : goes.");
+T("present","They ___ (watch) TV every evening.","watch","Avec they, pas de -s : they watch.");
+T("present","Look! It ___ (rain).",["is raining","'s raining"],"Action en cours en ce moment : présent continu, be + -ing.");
+T("present","I ___ coffee. (not / like)",["don't like","do not like"],"Négation au présent simple : don't + verbe.");
+M("present","She ___ TV right now.",["is watching","watches","watching","watch"],"is watching","Right now indique une action en cours : présent continu.");
+M("present","I ___ the answer.",["know","am knowing","knows","am know"],"know","Know est un verbe d'état : pas de forme en -ing.");
+M("present","He usually ___ up at 7.",["gets","is getting","get","getting"],"gets","Usually indique une habitude : présent simple, avec -s à la 3e personne.");
+M("present","We ___ in London at the moment.",["are staying","stay","stays","staying"],"are staying","At the moment : présent continu.");
+M("present","Water ___ at 100 degrees.",["boils","is boiling","boil","boiling"],"boils","Vérité générale : présent simple.");
+M("present","She ___ her homework every evening.",["does","do","is do","doing"],"does","Do → does à la 3e personne du singulier.");
+
+/* Prétérit */
+T("past","Yesterday, I ___ (go) to the market.","went","Go est irrégulier : go → went.");
+T("past","She ___ (buy) a new phone last week.","bought","Buy → bought.");
+T("past","We ___ (see) a great film on Saturday.","saw","See → saw.");
+T("past","They ___ (study) all night.","studied","Consonne + y : y devient ied.");
+T("past","He ___ (stop) at the red light.","stopped","Voyelle courte + consonne : on double la consonne avant -ed.");
+T("past","I ___ (eat) rice for lunch.","ate","Eat → ate.");
+T("past","She ___ (take) the bus to work.","took","Take → took.");
+T("past","We ___ (have) a lot of fun.","had","Have → had.");
+T("past","They ___ (come) home late.","came","Come → came.");
+M("past","I didn't ___ him yesterday.",["see","saw","seen","sees"],"see","Après didn't, on utilise le verbe à l'infinitif.");
+M("past","___ you go to the party last night?",["Did","Do","Were","Have"],"Did","Question au prétérit : did + sujet + verbe.");
+M("past","She ___ at home last night.",["was","were","is","been"],"was","Prétérit de be : I/he/she/it was ; you/we/they were.");
+
+/* Present perfect */
+M("perfect","I have lived here ___ 2020.",["since","for","ago","from"],"since","Since + point de départ.");
+M("perfect","She has worked here ___ five years.",["for","since","during","from"],"for","For + durée.");
+M("perfect","I ___ never been to Canada.",["have","has","am","did"],"have","Never been : present perfect avec have.");
+M("perfect","He ___ just left.",["has","have","is","did"],"has","He → has + participe passé.");
+M("perfect","I ___ him yesterday.",["saw","have seen","see","had seen"],"saw","Yesterday est un moment précis : prétérit, pas present perfect.");
+M("perfect","Have you finished your homework ___?",["yet","since","ago","last"],"yet","Yet s'emploie dans les questions et les négations.");
+T("perfect","She has ___ three emails today. (write)","written","Write → wrote → written.");
+T("perfect","I have ___ that film twice. (see)","seen","See → saw → seen.");
+T("perfect","They have ___ to Spain. (go)","gone","Go → went → gone.");
+T("perfect","He has ___ here since 8 a.m. (be)","been","Be → was/were → been.");
+T("perfect","We have ___ already. (eat)","eaten","Eat → ate → eaten.");
+T("perfect","Have you ever ___ a train in Germany? (take)","taken","Take → took → taken.");
+
+/* Futur */
+M("future","Look at those clouds! It ___ rain.",["is going to","will","is","does"],"is going to","Prévision fondée sur ce qu'on voit : be going to.");
+M("future","I'm so tired. I think I ___ go to bed.",["will","am going","going to","would"],"will","Décision prise sur le moment : will.");
+M("future","If it rains tomorrow, we ___ at home.",["will stay","stay","would stay","stayed"],"will stay","If + présent, will dans la principale.");
+M("future","If she ___ the exam, she will be happy.",["passes","will pass","passed","pass"],"passes","Après if : présent, avec -s à la 3e personne.");
+M("future","I ___ Tom at 6 tonight. We have arranged it.",["am meeting","meet","will meeting","meeting"],"am meeting","Rendez-vous déjà fixé : présent continu.");
+M("future","I ___ study medicine next year. I have decided.",["am going to","will","am","do"],"am going to","Intention déjà décidée : be going to.");
+T("future","Don't worry, I ___ (help) you.",["will help","'ll help"],"Promesse : will + verbe.");
+M("future","When I ___ home, I will call you.",["get","will get","am getting","got"],"get","Après when : présent, pas will.");
+M("future","The train ___ at 9:15 tomorrow.",["leaves","will leave","is leaving","leave"],"leaves","Un horaire officiel s'exprime souvent au présent simple.");
+M("future","I promise I ___ be late.",["won't","don't","am not","wouldn't"],"won't","Won't = will not : promesse.");
+
+/* Modaux */
+M("modals","She ___ swim very well.",["can","cans","can to","is can"],"can","Les modaux n'ont pas de -s et sont suivis de l'infinitif sans to.");
+M("modals","You ___ smoke here. It's forbidden.",["mustn't","don't have to","can","might"],"mustn't","Mustn't exprime l'interdiction.");
+M("modals","You ___ come tomorrow. It's optional.",["don't have to","mustn't","can't","shouldn't"],"don't have to","Don't have to : ce n'est pas obligatoire.");
+M("modals","You look ill. You ___ see a doctor.",["should","must to","shoulds","would to"],"should","Should exprime un conseil.");
+M("modals","You can ___ in here.",["sit","to sit","sitting","sits"],"sit","Après can : infinitif sans to.");
+M("modals","___ I open the window, please?",["Could","Do","Am","Must"],"Could","Could sert à demander poliment.");
+M("modals","I ___ go out last night because I was ill.",["couldn't","can't","mustn't","shouldn't"],"couldn't","Capacité ou impossibilité au passé : could / couldn't.");
+T("modals","She ___ (have to) work on Sundays.","has to","Have to à la 3e personne : has to.");
+T("modals","We ___ (have to) leave early yesterday.","had to","Au passé, have to devient had to.");
+T("modals","You ___ (not / must) park here.",["mustn't","must not"],"Interdiction : mustn't.");
+
+/* Questions et négations */
+M("questions","___ she like tea?",["Does","Do","Is","Has"],"Does","Présent simple, 3e personne : does + sujet + verbe.");
+M("questions","She doesn't ___ meat.",["eat","eats","eating","ate"],"eat","Après doesn't : verbe sans -s.");
+M("questions","Where ___ you live?",["do","does","are","have"],"do","Mot interrogatif + do + sujet + verbe.");
+M("questions","What time ___ the film start?",["does","do","is","did"],"does","The film = it : does.");
+M("questions","He didn't ___ the door.",["open","opened","opens","opening"],"open","Après didn't : infinitif.");
+M("questions","___ you tired?",["Are","Do","Does","Have"],"Are","Avec be, on inverse sans do.");
+M("questions","They ___ at home today.",["aren't","don't","doesn't","isn't"],"aren't","Négation de be : they aren't.");
+T("questions","She ___ on Sundays. (not / work)",["doesn't work","does not work"],"Négation : doesn't + verbe sans -s.");
+M("questions","___ they live in Paris?",["Do","Does","Are","Is"],"Do","They + verbe : do.");
+M("questions","How ___ you get to school?",["do","does","are","did he"],"do","How + do + sujet + verbe.");
+
+/* Articles */
+M("articles","She is ___ engineer.",["an","a","the","(rien)"],"an","Engineer commence par un son voyelle : an.");
+M("articles","I have ___ umbrella.",["an","a","the","(rien)"],"an","Umbrella commence par un son voyelle.");
+M("articles","He waits for ___ hour.",["an","a","the","(rien)"],"an","Le h de hour est muet : an hour.");
+M("articles","My sister goes to ___ university.",["a","an","the","(rien)"],"a","University se prononce avec un son [y] : a university.");
+M("articles","I love ___ music.",["(rien)","the","a","an"],"(rien)","Sens général : pas d'article.");
+M("articles","___ sun rises in the east.",["The","A","An","(rien)"],"The","Le soleil est unique : the sun.");
+M("articles","She plays ___ guitar.",["the","a","(rien)","an"],"the","Avec les instruments de musique : the guitar.");
+M("articles","I speak ___ English and French.",["(rien)","the","an","a"],"(rien)","Pas d'article devant les langues.");
+M("articles","I saw a dog. ___ dog was black.",["The","A","An","(rien)"],"The","Le chien a déjà été mentionné : the.");
+M("articles","They live in ___ United States.",["the","a","an","(rien)"],"the","On dit the United States, the UK : noms au pluriel ou avec « United ».");
+
+/* Prépositions */
+M("prep","The meeting is ___ 3 p.m.",["at","on","in","by"],"at","At + heure précise.");
+M("prep","I was born ___ May.",["in","on","at","of"],"in","In + mois.");
+M("prep","See you ___ Monday.",["on","in","at","by"],"on","On + jour de la semaine.");
+M("prep","She lives ___ Lomé.",["in","at","on","to"],"in","In + ville.");
+M("prep","The book is ___ the table.",["on","in","at","to"],"on","On + surface.");
+M("prep","I'm interested ___ history.",["in","on","at","about"],"in","Interested in.");
+M("prep","He is good ___ maths.",["at","in","on","with"],"at","Good at.");
+M("prep","Listen ___ me!",["to","at","for","of"],"to","Listen to.");
+M("prep","We wait ___ the bus.",["for","at","to","on"],"for","Wait for : pas de préposition en français, mais en anglais il en faut une.");
+M("prep","I get up ___ the morning.",["in","on","at","of"],"in","In the morning, mais at night.");
+M("prep","She is afraid ___ dogs.",["of","from","at","with"],"of","Afraid of.");
+M("prep","It depends ___ the weather.",["on","of","from","in"],"on","Depend on.");
+
+/* Faux amis */
+M("faux","___, I don't agree with you.",["Actually","Currently","Possibly","Recently"],"Actually","Actually = en fait, et non « actuellement ».");
+M("faux","I'm ___ living in Paris. (en ce moment)",["currently","actually","eventually","possibly"],"currently","Actuellement se dit currently.");
+M("faux","I borrowed this book from the ___.",["library","bookshop","librairy","bookcase"],"library","Library = bibliothèque. Librairie se dit bookshop.");
+M("faux","I want to buy a novel. Let's go to the ___.",["bookshop","library","librairy","bookcase"],"bookshop","Bookshop = librairie.");
+M("faux","She was very ___ and cried at the film.",["sensitive","sensible","sensual","sensory"],"sensitive","Sensitive = sensible (émotif). Sensible = raisonnable.");
+M("faux","I'm going to ___ the conference tomorrow.",["attend","assist","wait","follow"],"attend","Attend = assister à.");
+M("faux","Please ___ for me here. I'll be back soon.",["wait","attend","expect","hope"],"wait","Wait = attendre.");
+M("faux","I will ___ at home today.",["stay","rest","stand","stop"],"stay","Stay = rester. Rest = se reposer.");
+M("faux","He gave me good ___.",["advice","advices","advise","an advice"],"advice","Advice est indénombrable : pas de pluriel.");
+M("faux","The professor gave an interesting ___.",["lecture","lecturer","reading","lesson plan"],"lecture","Lecture = cours magistral ou conférence. Lecture (lire) se dit reading.");
+M("faux","He ___ found his keys. (finalement)",["eventually","possibly","actually","currently"],"eventually","Eventually = finalement. Éventuellement se dit possibly.");
+
+var LANG="en-GB";
+var KEY="atelier-anglais-v1", stats={};
+try{stats=JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){stats={};}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(stats));}catch(e){}}
+
+function $(s){return document.querySelector(s);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function fr(s){return esc(String(s).replace(/'/g,"’"));}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function norm(s){return String(s).toLowerCase().replace(/[’‘`]/g,"'").replace(/\s+/g," ").trim();}
+function strip(s){return s.normalize("NFD").replace(/[̀-ͯ]/g,"");}
+function catName(id){for(var i=0;i<CATS.length;i++){if(CATS[i].id===id)return CATS[i].nom;}return "";}
+function show(id){["home","quiz","result"].forEach(function(v){$("#"+v).hidden=(v!==id);});window.scrollTo(0,0);}
+
+BANK.forEach(function(q,i){if(q.type==="m"&&q.choices.indexOf(q.ans[0])<0){console.warn("Réponse absente des choix, question",i);}});
+
+function last(i){return stats[i]?stats[i].last:undefined;}
+
+function dkey(x){return x.getFullYear()+"-"+("0"+(x.getMonth()+1)).slice(-2)+"-"+("0"+x.getDate()).slice(-2);}
+function daysObj(){if(!stats._days)stats._days={};return stats._days;}
+function markToday(){var D=daysObj(),t=dkey(new Date());D[t]=(D[t]||0)+1;save();}
+function streakInfo(){var D=daysObj(),d=new Date(),n=0,td=D[dkey(d)]||0;if(!td)d.setDate(d.getDate()-1);while(D[dkey(d)]){n++;d.setDate(d.getDate()-1);}return{today:td,streak:n};}
+function streakText(){var s=streakInfo();if(!s.today)return" Fais ta série du jour."+(s.streak?" Tu es à "+s.streak+" jour"+(s.streak>1?"s":"")+" d’affilée.":"");return" Aujourd’hui : "+s.today+" série"+(s.today>1?"s":"")+" · "+s.streak+" jour"+(s.streak>1?"s":"")+" d’affilée.";}
+function speak(){if(!window.speechSynthesis)return;var q=BANK[S.list[S.i]];var u=new SpeechSynthesisUtterance(q.q.replace("___",q.ans[0]).replace(/\s*\([^)]*\)/g,"").replace(/\s*\.$/,"."));u.lang=LANG;u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u);}
+
+function renderHome(){
+  var total=BANK.length,mastered=0,errs=0;
+  var html=CATS.map(function(c){
+    var idx=[];BANK.forEach(function(q,i){if(q.cat===c.id)idx.push(i);});
+    var ok=idx.filter(function(i){return last(i)===true;}).length;
+    mastered+=ok;
+    errs+=idx.filter(function(i){return last(i)===false;}).length;
+    var pct=Math.round(ok/idx.length*100);
+    return '<article class="cat"><h3>'+esc(c.nom)+'</h3><p class="desc">'+fr(c.desc)+'</p>'+
+      '<div class="meter" role="img" aria-label="'+ok+' sur '+idx.length+' réussies"><span style="width:'+pct+'%"></span></div>'+
+      '<p class="meta">'+ok+' / '+idx.length+' réussies</p>'+
+      '<div class="actions"><button class="btn primary" data-start="'+c.id+'">S’entraîner</button></div>'+
+      '<details><summary>Rappel de cours</summary><ul>'+c.rappel.map(function(r){return "<li>"+fr(r)+"</li>";}).join("")+'</ul></details></article>';
+  }).join("");
+  $("#cats").innerHTML=html;
+  $("#summary").textContent=mastered+" questions réussies sur "+total+"."+streakText();
+  var b=$("#errBtn");b.disabled=errs===0;b.textContent=errs?"Revoir mes erreurs ("+errs+")":"Revoir mes erreurs";
+}
+
+var S=null;
+
+function start(mode){
+  var pool=[];
+  BANK.forEach(function(q,i){
+    if(mode==="mix"||q.cat===mode||(mode==="errors"&&last(i)===false))pool.push(i);
+  });
+  if(!pool.length)return;
+  var pr=function(i){var l=last(i);return l===false?0:(l===undefined?1:2);};
+  pool=shuffle(pool).sort(function(a,b){return pr(a)-pr(b);}).slice(0,10);
+  S={mode:mode,list:shuffle(pool),i:0,score:0,wrong:[],answered:false};
+  show("quiz");showQ();
+}
+
+function showQ(){
+  var q=BANK[S.list[S.i]];
+  S.answered=false;
+  if(window.speechSynthesis)speechSynthesis.cancel();
+  $("#qcat").textContent=catName(q.cat);
+  $("#qcount").textContent="Question "+(S.i+1)+" sur "+S.list.length;
+  $("#qbar").style.width=(S.i/S.list.length*100)+"%";
+  $("#fb").innerHTML="";
+  var parts=q.q.split("___");
+  var blank=q.type==="t"
+    ? '<input id="ans" class="blank" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Ta réponse">'
+    : '<span id="slot" class="blank slot">&nbsp;</span>';
+  $("#sentence").innerHTML=fr(parts[0])+blank+fr(parts[1]||"");
+  var ch=$("#choices"),vr=$("#validRow");
+  if(q.type==="m"){
+    ch.hidden=false;vr.hidden=true;
+    ch.innerHTML=shuffle(q.choices).map(function(c){return '<button class="choice" data-choice="'+esc(c)+'">'+fr(c)+'</button>';}).join("");
+  }else{
+    ch.hidden=true;ch.innerHTML="";vr.hidden=false;
+    var a=$("#ans");a.focus();
+    a.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();submitTyped();}});
+  }
+}
+
+function record(i,ok){
+  var s=stats[i]||{ok:0,ko:0};
+  if(ok)s.ok++;else s.ko++;
+  s.last=ok;stats[i]=s;save();
+}
+
+function finish(ok,given,near){
+  var q=BANK[S.list[S.i]];
+  S.answered=true;
+  record(S.list[S.i],ok);
+  if(ok)S.score++;else S.wrong.push({id:S.list[S.i],given:given});
+  var shown=q.ans[0];
+  var el=$("#ans");
+  if(el){
+    var span=document.createElement("span");
+    span.className="blank "+(ok?"ok":"ko");span.textContent=shown.replace(/'/g,"’");
+    el.replaceWith(span);
+  }else{
+    var sl=$("#slot");sl.className="blank "+(ok?"ok":"ko");sl.textContent=shown.replace(/'/g,"’");
+  }
+  $("#validRow").hidden=true;
+  var title=ok?"Bonne réponse.":(near?"Presque : vérifie l’orthographe.":"Pas tout à fait.");
+  var h='<div class="fb '+(ok?"ok":"ko")+'"><h3>'+title+'</h3>';
+  if(!ok){
+    h+='<p>Réponse attendue : <strong>'+fr(q.ans.join(" ou "))+'</strong></p>';
+    if(given)h+='<p>Ta réponse : '+fr(given)+'</p>';
+  }
+  if(q.ex)h+='<p>'+fr(q.ex)+'</p>';
+  var last=S.i===S.list.length-1;
+  h+='<div class="row"><button class="btn primary" id="nextBtn">'+(last?"Voir le résultat":"Question suivante")+'</button>'+(window.speechSynthesis?'<button class="btn" id="speakBtn">Écouter la phrase</button>':'')+'</div></div>';
+  $("#fb").innerHTML=h;
+  setTimeout(function(){var n=$("#nextBtn");if(n)n.focus();},60);
+}
+
+function submitTyped(){
+  if(S.answered)return;
+  var q=BANK[S.list[S.i]],v=$("#ans").value;
+  if(!norm(v)){$("#ans").focus();return;}
+  var ok=q.ans.some(function(a){return norm(a)===norm(v);});
+  var near=!ok&&q.ans.some(function(a){return strip(norm(a))===strip(norm(v));});
+  finish(ok,v.trim(),near);
+}
+
+function pick(btn){
+  if(S.answered)return;
+  var q=BANK[S.list[S.i]],c=btn.getAttribute("data-choice");
+  var ok=q.ans.indexOf(c)>=0;
+  document.querySelectorAll(".choice").forEach(function(b){
+    b.disabled=true;
+    if(q.ans.indexOf(b.getAttribute("data-choice"))>=0)b.classList.add("good");
+  });
+  if(!ok)btn.classList.add("bad");
+  finish(ok,c,false);
+}
+
+function next(){
+  if(S.i<S.list.length-1){S.i++;showQ();}
+  else showResult();
+}
+
+function showResult(){
+  var n=S.list.length,sc=S.score;markToday();
+  $("#score").innerHTML=sc+' <small>/ '+n+'</small>';
+  var msg=sc===n?"Sans faute.":(sc>=n*.8?"Très solide. Revois seulement les points ci-dessous.":(sc>=n*.5?"Pas mal. Relis le rappel de cours, puis refais une série.":"Continue, la répétition fait le travail. Commence par le rappel de cours."));
+  $("#scoreMsg").textContent=msg;
+  $("#errs").innerHTML=S.wrong.map(function(w){
+    var q=BANK[w.id];
+    var sentence=esc(q.q).replace("___","<b>"+esc(q.ans[0])+"</b>");
+    return '<li><div>'+sentence.replace(/'/g,"’")+'</div>'+(w.given?'<p class="given">Ta réponse : '+fr(w.given)+'</p>':'')+'</li>';
+  }).join("");
+  show("result");
+}
+
+document.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.hasAttribute("data-start")){start(t.getAttribute("data-start"));}
+  else if(t.hasAttribute("data-choice")){pick(t);}
+  else if(t.id==="validBtn"){submitTyped();}
+  else if(t.id==="speakBtn"){speak();}
+  else if(t.id==="nextBtn"){next();}
+  else if(t.id==="quitBtn"||t.id==="homeBtn"){renderHome();show("home");}
+  else if(t.id==="againBtn"){if(S)start(S.mode);}
+  else if(t.id==="resetBtn"){
+    if(t.getAttribute("data-armed")){stats={};save();t.removeAttribute("data-armed");t.textContent="Effacer ma progression";renderHome();}
+    else{t.setAttribute("data-armed","1");t.textContent="Confirmer l’effacement";}
+  }
+});
+
+renderHome();
+})();
+</script>
+<script>
+if(location.protocol.indexOf("http")===0){
+  var sl=document.getElementById("siteLink");if(sl)sl.hidden=false;
+  var ml=document.createElement("link");ml.rel="manifest";ml.href="/manifest.webmanifest";document.head.appendChild(ml);
+  if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").catch(function(){});}
+}
+</script>
+</body>
+</html>
